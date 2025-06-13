@@ -16,9 +16,6 @@ import { Check, ChevronDown, Twitter } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export default function HomePage() {
-  const fillerText = `This is a demonstration of the liquid glass effect. Drag the glass element to see how it distorts the text underneath. The effect uses a combination of SVG filters and CSS backdrop-filter to create a realistic, refractive glass appearance. Notice the magnification and slight color aberration at the edges, which contributes to the overall illusion. This component is built for Next.js with TypeScript, ensuring it is both modern and type-safe. `;
-  const infiniteText = Array(100).fill(fillerText).join(" ");
-
   const backgrounds = [
     {
       name: "Vector Winds",
@@ -65,7 +62,7 @@ export default function HomePage() {
 
   return (
     <main
-      className="min-h-screen p-16 font-serif text-primary"
+      className="min-h-full p-16 font-serif text-primary min-w-full"
       style={backgroundStyle}
     >
       <div className="mx-auto max-w-screen-lg space-y-2 text-center">

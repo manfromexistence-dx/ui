@@ -294,7 +294,7 @@ export const LiquidGlass = ({
         ref={containerRef}
         style={{
           filter:
-            'url(#' + filterId.current + ') blur(0.25px) contrast(1.2) brightness(1.05) saturate(1.1)',
+            "url(#" + filterId.current + ") blur(0.25px) contrast(1.2) brightness(1.05) saturate(1.1)",
           boxShadow:
             "0 4px 8px rgba(0, 0, 0, 0.25), 0 -10px 25px inset rgba(0, 0, 0, 0.15)",
         }}
@@ -323,12 +323,12 @@ export const LiquidGlass = ({
     return `
     // Created by manfromexistence - https://x.com/manfrexistence
     (function () {
-        'use strict';
+        "use strict";
     
         // Check if liquid glass already exists and destroy it
         if (window.liquidGlass) {
             window.liquidGlass.destroy();
-            console.log('Previous liquid glass effect removed.');
+            console.log("Previous liquid glass effect removed.");
         }
     
         // Utility functions
@@ -348,12 +348,12 @@ export const LiquidGlass = ({
         }
     
         function texture(x, y) {
-            return { type: 't', x, y };
+            return { type: "t", x, y };
         }
     
         // Generate unique ID
         function generateId() {
-            return 'liquid-glass-' + Math.random().toString(36).substr(2, 9);
+            return "liquid-glass-" + Math.random().toString(36).substr(2, 9);
         }
     
         // Main Shader class
@@ -376,54 +376,54 @@ export const LiquidGlass = ({
     
             createElement() {
                 // Create container
-                this.container = document.createElement('div');
+                this.container = document.createElement("div");
                 this.container.style.cssText =
-                    'position: fixed; ' +
-                    'top: 50%; ' +
-                    'left: 50%; ' +
-                    'transform: translate(-50%, -50%); ' +
-                    'width: ' + this.width + 'px; ' +
-                    'height: ' + this.height + 'px; ' +
-                    'overflow: hidden; ' +
-                    'border-radius: 150px; ' +
-                    'box-shadow: 0 4px 8px rgba(0, 0, 0, 0.25), 0 -10px 25px inset rgba(0, 0, 0, 0.15); ' +
-                    'cursor: grab; ' +
-                    'backdrop-filter: url(#' + this.id + '_filter) blur(0.25px) contrast(1.2) brightness(1.05) saturate(1.1); ' +
-                    'z-index: 9999; ' +
-                    'pointer-events: auto;';
+                    "position: fixed; " +
+                    "top: 50%; " +
+                    "left: 50%; " +
+                    "transform: translate(-50%, -50%); " +
+                    "width: " + this.width + "px; " +
+                    "height: " + this.height + "px; " +
+                    "overflow: hidden; " +
+                    "border-radius: 150px; " +
+                    "box-shadow: 0 4px 8px rgba(0, 0, 0, 0.25), 0 -10px 25px inset rgba(0, 0, 0, 0.15); " +
+                    "cursor: grab; " +
+                    "backdrop-filter: url(#" + this.id + "_filter) blur(0.25px) contrast(1.2) brightness(1.05) saturate(1.1); " +
+                    "z-index: 9999; " +
+                    "pointer-events: auto;";
     
                 // Create SVG filter
-                this.svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-                this.svg.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
-                this.svg.setAttribute('width', '0');
-                this.svg.setAttribute('height', '0');
+                this.svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+                this.svg.setAttribute("xmlns", "http://www.w3.org/2000/svg");
+                this.svg.setAttribute("width", "0");
+                this.svg.setAttribute("height", "0");
                 this.svg.style.cssText =
-                    'position: fixed; ' +
-                    'top: 0; ' +
-                    'left: 0; ' +
-                    'pointer-events: none; ' +
-                    'z-index: 9998;';
+                    "position: fixed; " +
+                    "top: 0; " +
+                    "left: 0; " +
+                    "pointer-events: none; " +
+                    "z-index: 9998;";
     
-                const defs = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
-                const filter = document.createElementNS('http://www.w3.org/2000/svg', 'filter');
-                filter.setAttribute('id', this.id + '_filter');
-                filter.setAttribute('filterUnits', 'userSpaceOnUse');
-                filter.setAttribute('colorInterpolationFilters', 'sRGB');
-                filter.setAttribute('x', '0');
-                filter.setAttribute('y', '0');
-                filter.setAttribute('width', this.width.toString());
-                filter.setAttribute('height', this.height.toString());
+                const defs = document.createElementNS("http://www.w3.org/2000/svg", "defs");
+                const filter = document.createElementNS("http://www.w3.org/2000/svg", "filter");
+                filter.setAttribute("id", this.id + "_filter");
+                filter.setAttribute("filterUnits", "userSpaceOnUse");
+                filter.setAttribute("colorInterpolationFilters", "sRGB");
+                filter.setAttribute("x", "0");
+                filter.setAttribute("y", "0");
+                filter.setAttribute("width", this.width.toString());
+                filter.setAttribute("height", this.height.toString());
     
-                this.feImage = document.createElementNS('http://www.w3.org/2000/svg', 'feImage');
-                this.feImage.setAttribute('id', this.id + '_map');
-                this.feImage.setAttribute('width', this.width.toString());
-                this.feImage.setAttribute('height', this.height.toString());
+                this.feImage = document.createElementNS("http://www.w3.org/2000/svg", "feImage");
+                this.feImage.setAttribute("id", this.id + "_map");
+                this.feImage.setAttribute("width", this.width.toString());
+                this.feImage.setAttribute("height", this.height.toString());
     
-                this.feDisplacementMap = document.createElementNS('http://www.w3.org/2000/svg', 'feDisplacementMap');
-                this.feDisplacementMap.setAttribute('in', 'SourceGraphic');
-                this.feDisplacementMap.setAttribute('in2', this.id + '_map');
-                this.feDisplacementMap.setAttribute('xChannelSelector', 'R');
-                this.feDisplacementMap.setAttribute('yChannelSelector', 'G');
+                this.feDisplacementMap = document.createElementNS("http://www.w3.org/2000/svg", "feDisplacementMap");
+                this.feDisplacementMap.setAttribute("in", "SourceGraphic");
+                this.feDisplacementMap.setAttribute("in2", this.id + "_map");
+                this.feDisplacementMap.setAttribute("xChannelSelector", "R");
+                this.feDisplacementMap.setAttribute("yChannelSelector", "G");
     
                 filter.appendChild(this.feImage);
                 filter.appendChild(this.feDisplacementMap);
@@ -431,12 +431,12 @@ export const LiquidGlass = ({
                 this.svg.appendChild(defs);
     
                 // Create canvas for displacement map (hidden)
-                this.canvas = document.createElement('canvas');
+                this.canvas = document.createElement("canvas");
                 this.canvas.width = this.width * this.canvasDPI;
                 this.canvas.height = this.height * this.canvasDPI;
-                this.canvas.style.display = 'none';
+                this.canvas.style.display = "none";
     
-                this.context = this.canvas.getContext('2d');
+                this.context = this.canvas.getContext("2d");
             }
     
             constrainPosition(x, y) {
@@ -460,9 +460,9 @@ export const LiquidGlass = ({
                 let isDragging = false;
                 let startX, startY, initialX, initialY;
     
-                this.container.addEventListener('mousedown', (e) => {
+                this.container.addEventListener("mousedown", (e) => {
                     isDragging = true;
-                    this.container.style.cursor = 'grabbing';
+                    this.container.style.cursor = "grabbing";
                     startX = e.clientX;
                     startY = e.clientY;
                     const rect = this.container.getBoundingClientRect();
@@ -471,7 +471,7 @@ export const LiquidGlass = ({
                     e.preventDefault();
                 });
     
-                document.addEventListener('mousemove', (e) => {
+                document.addEventListener("mousemove", (e) => {
                     if (isDragging) {
                         const deltaX = e.clientX - startX;
                         const deltaY = e.clientY - startY;
@@ -483,9 +483,9 @@ export const LiquidGlass = ({
                         // Constrain position within viewport bounds
                         const constrained = this.constrainPosition(newX, newY);
     
-                        this.container.style.left = constrained.x + 'px';
-                        this.container.style.top = constrained.y + 'px';
-                        this.container.style.transform = 'none';
+                        this.container.style.left = constrained.x + "px";
+                        this.container.style.top = constrained.y + "px";
+                        this.container.style.transform = "none";
                     }
     
                     // Update mouse position for shader
@@ -498,20 +498,20 @@ export const LiquidGlass = ({
                     }
                 });
     
-                document.addEventListener('mouseup', () => {
+                document.addEventListener("mouseup", () => {
                     isDragging = false;
-                    this.container.style.cursor = 'grab';
+                    this.container.style.cursor = "grab";
                 });
     
                 // Handle window resize to maintain constraints
-                window.addEventListener('resize', () => {
+                window.addEventListener("resize", () => {
                     const rect = this.container.getBoundingClientRect();
                     const constrained = this.constrainPosition(rect.left, rect.top);
     
                     if (rect.left !== constrained.x || rect.top !== constrained.y) {
-                        this.container.style.left = constrained.x + 'px';
-                        this.container.style.top = constrained.y + 'px';
-                        this.container.style.transform = 'none';
+                        this.container.style.left = constrained.x + "px";
+                        this.container.style.top = constrained.y + "px";
+                        this.container.style.transform = "none";
                     }
                 });
             }
@@ -559,8 +559,8 @@ export const LiquidGlass = ({
                 }
     
                 this.context.putImageData(new ImageData(data, w, h), 0, 0);
-                this.feImage.setAttributeNS('http://www.w3.org/1999/xlink', 'href', this.canvas.toDataURL());
-                this.feDisplacementMap.setAttribute('scale', (maxScale / this.canvasDPI).toString());
+                this.feImage.setAttributeNS("http://www.w3.org/1999/xlink", "href", this.canvas.toDataURL());
+                this.feDisplacementMap.setAttribute("scale", (maxScale / this.canvasDPI).toString());
             }
     
             appendTo(parent) {
@@ -600,7 +600,7 @@ export const LiquidGlass = ({
             // Add to page
             shader.appendTo(document.body);
     
-            console.log('Liquid Glass effect created! Drag the glass around the page.');
+            console.log("Liquid Glass effect created! Drag the glass around the page.");
     
             // Return shader instance so it can be removed if needed
             window.liquidGlass = shader;
@@ -895,7 +895,7 @@ export const LiquidGlass = ({
                   className="inline-flex h-10 items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground ring-offset-background transition-colors hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50"
                 >
                   {isCopied ? <Check className="mr-2 h-4 w-4" /> : <Copy className="mr-2 h-4 w-4" />}
-                  {isCopied ? 'Copied!' : 'Copy Code'}
+                  {isCopied ? "Copied!" : "Copy Code"}
                 </button>
               </div>
             </div>
@@ -922,7 +922,7 @@ export const LiquidGlass = ({
                   className="inline-flex h-10 items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground ring-offset-background transition-colors hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50"
                 >
                   {isCopied ? <Check className="mr-2 h-4 w-4" /> : <Copy className="mr-2 h-4 w-4" />}
-                  {isCopied ? 'Copied!' : 'Copy Code'}
+                  {isCopied ? "Copied!" : "Copy Code"}
                 </button>
               </div>
             </div>
