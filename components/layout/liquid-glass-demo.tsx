@@ -9,7 +9,7 @@ import {
     CollapsibleContent,
     CollapsibleTrigger,
 } from "@/components/ui/collapsible";
-import { ChevronsUpDown, Copy, X, Check } from "lucide-react";
+import { ChevronsUpDown, Copy, X } from "lucide-react";
 import React from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
@@ -75,28 +75,25 @@ export const LiquidGlassDemo = ({
     const [distanceOffset, setDistanceOffset] = useState(0.15);
 
     const updateShader = useCallback(() => {
-        if (!canvasRef.current || !feImageRef.current || !feDisplacementMapRef.current) return;
+        if (!canvasRef.current || !feImageRef.current || !feDisplacementMapRef.current || width <= 1 || height <= 1) return;
 
         const canvas = canvasRef.current;
         const context = canvas.getContext("2d");
         if (!context) return;
 
         const canvasDPI = 1;
-        const w = width * canvasDPI;
-        const h = height * canvasDPI;
+        const w = Math.floor(width * canvasDPI);
+        const h = Math.floor(height * canvasDPI);
+        if (w <= 0 || h <= 0) return;
+
+        canvas.width = w;
+        canvas.height = h;
+
         const data = new Uint8ClampedArray(w * h * 4);
         let maxScale = 0;
         const rawValues: number[] = [];
 
-        mouseUsed.current = false;
-        const mouseProxy = new Proxy(mouse.current, {
-            get: (target, prop: keyof MousePosition) => {
-                mouseUsed.current = true;
-                return target[prop];
-            }
-        });
-
-        const fragment = (uv: UV, m: MousePosition) => {
+        const fragment = (uv: UV) => {
             const ix = uv.x - 0.5;
             const iy = uv.y - 0.5;
             const distanceToEdge = roundedRectSDF(ix, iy, distortWidth, distortHeight, distortRadius);
@@ -105,10 +102,10 @@ export const LiquidGlassDemo = ({
             return { x: ix * scaled + 0.5, y: iy * scaled + 0.5 };
         };
 
-        for (let i = 0; i < data.length; i += 4) {
-            const x = (i / 4) % w;
-            const y = Math.floor(i / 4 / w);
-            const pos = fragment({ x: x / w, y: y / h }, mouseProxy);
+        for (let i = 0; i < w * h; i++) {
+            const x = i % w;
+            const y = Math.floor(i / w);
+            const pos = fragment({ x: x / w, y: y / h });
             const dx = pos.x * w - x;
             const dy = pos.y * h - y;
             maxScale = Math.max(maxScale, Math.abs(dx), Math.abs(dy));
@@ -117,15 +114,17 @@ export const LiquidGlassDemo = ({
 
         maxScale *= 0.5;
 
-        let index = 0;
-        for (let i = 0; i < data.length; i += 4) {
-            const r = rawValues[index++] / maxScale + 0.5;
-            const g = rawValues[index++] / maxScale + 0.5;
-            data[i] = r * 255;
-            data[i + 1] = g * 255;
-            data[i + 2] = 0;
-            data[i + 3] = 255;
+        let dataIndex = 0;
+        let rawValueIndex = 0;
+        for (let i = 0; i < w * h; i++) {
+            const r = rawValues[rawValueIndex++] / maxScale + 0.5;
+            const g = rawValues[rawValueIndex++] / maxScale + 0.5;
+            data[dataIndex++] = r * 255;
+            data[dataIndex++] = g * 255;
+            data[dataIndex++] = 0;
+            data[dataIndex++] = 255;
         }
+
 
         context.putImageData(new ImageData(data, w, h), 0, 0);
         feImageRef.current.setAttributeNS("http://www.w3.org/1999/xlink", "href", canvas.toDataURL());
@@ -139,7 +138,6 @@ export const LiquidGlassDemo = ({
 
         updateShader();
 
-        // Event handlers for dragging the component around.
         let isDragging = false;
         let startX = 0, startY = 0, initialX = 0, initialY = 0;
 
