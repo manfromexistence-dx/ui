@@ -12,6 +12,7 @@ import {
 import { ChevronsUpDown, Copy, X, RotateCcw, Check } from "lucide-react";
 import React from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { toast } from "sonner"; // Import the toast function
 
 const smoothStep = (a: number, b: number, t: number): number => {
     t = Math.max(0, Math.min(1, (t - a) / (b - a)));
@@ -77,7 +78,7 @@ export const LiquidGlassDemo = ({
             setWidth(containerRef.current.offsetWidth);
             setHeight(containerRef.current.offsetHeight);
         }
-        
+
         try {
             const storedSettings = localStorage.getItem("liquidGlassSettings");
             if (storedSettings) {
@@ -132,8 +133,7 @@ export const LiquidGlassDemo = ({
     };
 
     const generateCodeSnippet = () => {
-        return `
-"use client"
+        return `"use client"
 
 import React, { useCallback, useEffect, useRef, useState } from "react"
 
@@ -371,13 +371,10 @@ export const LiquidGlass = ({
         />
     </>
     )
-}
-        `
-    };
+}`};
 
     const generateBrowserConsoleCodeSnippet = () => {
-        return `
-(function () {
+        return `(function () {
     "use strict";
 
     if (window.liquidGlass) {
@@ -583,22 +580,33 @@ export const LiquidGlass = ({
         window.liquidGlass = shader;
     }
     createLiquidGlass();
-})();
-        `
-    };
+})();`};
 
     const handleCopyToClipboard = (text: string, type: 'command' | 'shadcn' | 'console') => {
-        const textarea = document.createElement("textarea");
-        textarea.value = text;
-        document.body.appendChild(textarea);
-        textarea.select();
-        document.execCommand("copy");
-        document.body.removeChild(textarea);
+        navigator.clipboard.writeText(text).then(() => {
+            setCopiedStates(prev => ({ ...prev, [type]: true }));
+            setTimeout(() => {
+                setCopiedStates(prev => ({ ...prev, [type]: false }));
+            }, 2000);
 
-        setCopiedStates(prev => ({ ...prev, [type]: true }));
-        setTimeout(() => {
-            setCopiedStates(prev => ({ ...prev, [type]: false }));
-        }, 2000);
+            // Use Sonner to show a toast notification
+            switch (type) {
+                case 'command':
+                    toast.success("CLI command copied to clipboard.");
+                    break;
+                case 'shadcn':
+                    toast.success("Shadcn-UI code copied to clipboard.");
+                    break;
+                case 'console':
+                    toast.success("JavaScript code copied to clipboard.");
+                    break;
+                default:
+                    toast.success("Copied to clipboard.");
+            }
+        }).catch(err => {
+            console.error('Failed to copy text: ', err);
+            toast.error("Failed to copy to clipboard.");
+        });
     };
 
     const updateShader = useCallback(() => {
@@ -846,7 +854,7 @@ export const LiquidGlass = ({
                         <TabsContent value="shadcn" className="overflow-y-auto">
                             <div className="space-y-4 p-4">
                                 <div className="relative">
-                                     <button onClick={() => handleCopyToClipboard(`npx shadcn-ui@latest add "https://dx-ui.vercel.app/r/liquid-glass.json"`, 'command')} className="absolute top-1/2 translate-y-[-50%] right-2 rounded-md p-1 text-primary transition-colors hover:bg-muted hover:text-zinc-50">
+                                      <button onClick={() => handleCopyToClipboard(`npx shadcn-ui@latest add "https://dx-ui.vercel.app/r/liquid-glass.json"`, 'command')} className="absolute top-1/2 translate-y-[-50%] right-2 rounded-md p-1 text-primary transition-colors hover:bg-muted hover:text-zinc-50">
                                         {copiedStates.command ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
                                     </button>
                                     <pre className="border whitespace-pre-wrap rounded-md p-4 text-sm overflow-x-auto py-2 bg-primary-foreground">
@@ -857,7 +865,7 @@ export const LiquidGlass = ({
                                     <button onClick={() => handleCopyToClipboard(generateCodeSnippet(), 'shadcn')} className="absolute top-2 right-2 rounded-md p-1 text-primary transition-colors hover:bg-muted hover:text-zinc-50">
                                         {copiedStates.shadcn ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
                                     </button>
-                                    <pre className="whitespace-pre-wrap rounded-md p-4 py-0 bg-primary-foreground text-sm overflow-x-auto border">
+                                    <pre className="whitespace-pre-wrap rounded-md p-4 bg-primary-foreground text-sm overflow-x-auto border">
                                         <code>{generateCodeSnippet()}</code>
                                     </pre>
                                 </div>
@@ -866,10 +874,10 @@ export const LiquidGlass = ({
                         <TabsContent value="console" className="overflow-y-auto">
                              <div className="p-4">
                                 <div className="relative">
-                                     <button onClick={() => handleCopyToClipboard(generateBrowserConsoleCodeSnippet(), 'console')} className="absolute top-2 right-2 rounded-md p-1 text-primary transition-colors hover:bg-muted hover:text-zinc-50">
+                                      <button onClick={() => handleCopyToClipboard(generateBrowserConsoleCodeSnippet(), 'console')} className="absolute top-2 right-2 rounded-md p-1 text-primary transition-colors hover:bg-muted hover:text-zinc-50">
                                         {copiedStates.console ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
                                     </button>
-                                    <pre className="whitespace-pre-wrap rounded-md p-4 text-sm overflow-x-auto bg-primary-foreground py-0">
+                                    <pre className="whitespace-pre-wrap rounded-md p-4 bg-primary-foreground text-sm overflow-x-auto border">
                                         <code>{generateBrowserConsoleCodeSnippet()}</code>
                                     </pre>
                                 </div>
