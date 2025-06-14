@@ -783,7 +783,7 @@ export const LiquidGlass = ({
                     backdropFilter: `url(#${filterId.current}) blur(0.25px) contrast(1.2) brightness(1.05) saturate(1.1)`,
                 }}
                 className={cn(
-                    `pointer-events-auto flex h-64 w-64 cursor-grab overflow-hidden rounded-full border`,
+                    `pointer-events-auto flex h-64 w-64 cursor-grab overflow-hidden border rounded-full`,
                     className
                 )}
             />
