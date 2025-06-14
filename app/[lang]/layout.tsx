@@ -37,9 +37,9 @@ export const metadata: Metadata = {
   generator: "Next.js",
 };
 
-export async function generateStaticParams() {
-  return i18n.locales.map((locale) => ({ lang: locale }));
-}
+// export async function generateStaticParams() {
+//   return i18n.locales.map((locale) => ({ lang: locale }));
+// }
 
 export default async function Root(props: {
   children: React.ReactNode;
