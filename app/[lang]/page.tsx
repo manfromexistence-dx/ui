@@ -53,6 +53,7 @@ export default function HomePage() {
 
   const backgroundStyle = {
     backgroundImage: `url(${selectedBackground.url})`,
+    // backgroundImage: `url(./apple.jpg)`,
     backgroundSize: "500px",
     backgroundPosition: "center center",
     animation: animationActive ? "moveBackground 600s linear infinite" : "none",
@@ -109,7 +110,7 @@ export default function HomePage() {
         <span className="text-rose-500">Hello</span>
       </LiquidGlass> */}
 
-      <style jsx global>{`
+      {/* <style jsx global>{`
         @keyframes moveBackground {
           from {
             background-position: 0% 0%;
@@ -118,7 +119,7 @@ export default function HomePage() {
             background-position: 0% -1500%;
           }
         }
-      `}</style>
+      `}</style> */}
     </main>
   );
 }
