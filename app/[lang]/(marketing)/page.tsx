@@ -14,6 +14,8 @@ import {
 import { Button } from "@/components/ui/button";
 import { Check, ChevronDown, Twitter } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Border } from "@/components/layout/border";
+import { EyeCatchingButton_v1 } from "@/components/common/eye-catching-buttons";
 
 export default function HomePage() {
   const backgrounds = [

@@ -53,7 +53,7 @@ const initialSettings = {
 };
 
 
-export const LiquidGlass = ({
+export const LiquidGlassDemo = ({
     offset = 10,
     className
 }: LiquidGlassProps) => {

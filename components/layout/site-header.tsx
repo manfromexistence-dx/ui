@@ -5,12 +5,12 @@ import { Search } from "lucide-react"
 import Friday from "@/components/orb/friday"
 import * as React from "react"
 import { useState, useCallback } from "react"
-import { cn } from "../../lib/utils"
-import { useCategorySidebar } from "./sidebar/category-sidebar"
-import { NavActions } from "./sidebar/nav-actions"
-import { useSubCategorySidebar } from "./sidebar/subcategory-sidebar"
-import CategorySidebar from "./sidebar/category-app-sidebar"
-import SubCategorySidebar from "./sidebar/subcategory-app-sidebar"
+import { cn } from "@/lib/utils"
+import { useCategorySidebar } from "@/components/layout/sidebar/category-sidebar"
+import { NavActions } from "@/components/layout/sidebar/nav-actions"
+import { useSubCategorySidebar } from "@/components/layout/sidebar/subcategory-sidebar"
+import CategorySidebar from "@/components/layout/sidebar/category-app-sidebar"
+import SubCategorySidebar from "@/components/layout/sidebar/subcategory-app-sidebar"
 import { usePathname } from "next/navigation"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
@@ -26,7 +26,7 @@ import { useParams } from "next/navigation"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { GlobeIcon, LockIcon, EyeOff, Loader2 } from "lucide-react"
 import { useEffect } from "react"
-import { SidebarProvider } from "./sidebar/actions-sidebar"
+import { SidebarProvider } from "@/components/layout/sidebar/actions-sidebar"
 import { useTheme } from "next-themes"
 import { createAnimation } from "@/lib/theme/theme-animations"
 import { CommandMenu } from "@/components/layout/command-menu"
@@ -43,7 +43,7 @@ import {
 } from "@/components/ui/command"
 import { v4 as uuidv4 } from "uuid"
 import { Separator } from "@/components/ui/separator"
-import {Profile} from "./profile"
+import {Profile} from "@/components/layout/profile"
 import { CustomizerSidebarToggle } from "@/components/customizer/customizer-sidebar"
 
 
@@ -744,7 +744,7 @@ export function SiteHeader() {
             </CommandList>
           </CommandDialog>
         </div>
-        <Profile />
+        {/* <Profile /> */}
 
         {/* {user ? (
         ) : (

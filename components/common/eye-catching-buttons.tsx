@@ -9,7 +9,7 @@ export const EyeCatchingButton_v1 = ({ ...props }: any) => {
       <Button
         {...props}
         className={cn(
-          'h-10 w-full rounded-md border !bg-transparent px-4 font-semibold backdrop-blur-xl',
+          'h-10 w-full rounded-md border bg-transparent px-4 font-semibold backdrop-blur-xl',
           props.className
         )}
       />
