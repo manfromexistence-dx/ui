@@ -71,7 +71,7 @@ import { ThemeSync } from "@/providers/theme-sync";
 import { SiteHeader } from "@/components/layout/site-header"
 // import { BottomBar } from "@/components/layout/bottom-bar"
 import { NuqsAdapter } from "nuqs/adapters/next/app";
-import { Main } from "./main"
+import { Main } from "@/providers/main"
 import { Provider as JotaiProvider } from "jotai"
 import { Toaster } from "@/components/ui/sonner";
 import { Suspense } from "react";

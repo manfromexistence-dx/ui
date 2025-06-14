@@ -32,7 +32,7 @@ export const ChatMessage = memo(
     onTransitionEnd,
     selectedAI = "",
   }: ChatMessageProps) => {
-    const { data: session } = await authClient.useSession();
+    const { data: session } = await authClient.getSession();
     const user = session?.user;
     const isAssistant = message.role === "assistant";
     const [isPlaying, setIsPlaying] = useState(false);

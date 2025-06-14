@@ -4,9 +4,9 @@ import {
   defaultHueRotation,
   defaultMainOrbHueAnimation,
   defaultSize,
-} from "./constants";
-import { colorPalettes } from "./palette/colorPalettes";
-import { ReactAIOrbProps } from "./types";
+} from "@/components/orb/constants";
+import { colorPalettes } from "@/components/orb/palette/colorPalettes";
+import { ReactAIOrbProps } from "@/components/orb/types";
 
 export const oceanDepthsPreset: ReactAIOrbProps = {
   palette: colorPalettes.oceanDepths,

@@ -7,8 +7,8 @@ import {
   ThemeObject,
   ThemeProperties,
 } from "@/types/theme";
-import { colorFormatter } from "./color-converter";
-import { getShadowMap } from "./shadow-generator";
+import { colorFormatter } from "@/lib/theme/color-converter";
+import { getShadowMap } from "@/lib/theme/shadow-generator";
 
 function generateColorVariables(
   themeObject: ThemeObject,

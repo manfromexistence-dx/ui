@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useDebouncedCallback } from "./use-debounced-callback";
+import { useDebouncedCallback } from "@/hooks/use-debounced-callback";
 import { getContrastRatio } from "@/lib/theme/contrast-checker";
 
 type ColorPair = {

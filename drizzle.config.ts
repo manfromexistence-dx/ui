@@ -2,8 +2,8 @@ import "dotenv/config";
 import { defineConfig } from "drizzle-kit";
 
 export default defineConfig({
-  out: "./lib/db/drizzle",
-  schema: "./lib/db/schema.ts",
+  out: "@/lib/db/drizzle",
+  schema: "@/lib/db/schema.ts",
   dialect: "turso",
   dbCredentials: {
     url: "libsql://friday-manfrexistence.aws-ap-northeast-1.turso.io",

@@ -884,7 +884,7 @@ export function InputActions({
         .update(chatsTable)
         .set({ 
           model,
-          updated_at: new Date().toISOString() // Use snake_case
+          // updated_at: new Date().toISOString() // Use snake_case
         })
         .where(eq(chatsTable.id, chatId));
       console.log("Chat model updated to:", model);

@@ -1,4 +1,4 @@
-import { initialThemeConfig } from "./themes";
+import { initialThemeConfig } from "@/constants/themes";
 import { ThemeObject } from "@/types/theme";
 import { merge } from "lodash";
 

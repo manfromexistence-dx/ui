@@ -3,7 +3,7 @@ import { otherPresets } from "@/constants/presets";
 
 import Color from "color";
 import { parse } from "culori";
-import { colorFormatter } from "./color-converter";
+import { colorFormatter } from "@/lib/theme/color-converter";
 
 export function getOptimalForegroundColor(baseColor: string) {
   if (!isValidColor(baseColor)) {

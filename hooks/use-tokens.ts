@@ -11,7 +11,7 @@ import {
 import { getOptimalForegroundColor, isValidColor } from "@/lib/theme/color-utils";
 import { useTheme } from "next-themes";
 import { useCallback } from "react";
-import { useThemeConfig } from "./use-theme-config";
+import { useThemeConfig } from "@/hooks/use-theme-config";
 
 export function useTokens() {
   const { resolvedTheme } = useTheme();

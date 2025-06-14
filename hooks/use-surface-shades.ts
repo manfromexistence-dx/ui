@@ -1,6 +1,6 @@
 import { Preset, SurfaceShades, SurfaceShadesThemeObject } from "@/types/theme";
-import { useThemeConfig } from "./use-theme-config";
-import { useTokens } from "./use-tokens";
+import { useThemeConfig } from "@/hooks/use-theme-config";
+import { useTokens } from "@/hooks/use-tokens";
 
 export function useSurfaceShades() {
   const { createTokenGetterForPreset } = useTokens();

@@ -1,6 +1,6 @@
 import { ThemeConfig, ThemeProperties } from "@/types/theme";
-import { basePresetsV4 } from "./colors";
-import { otherPresets } from "./presets";
+import { basePresetsV4 } from "@/constants/colors";
+import { otherPresets } from "@/constants/presets";
 
 export function getCssVarsFromThemeObject(
   themeProperties: Partial<ThemeProperties>,

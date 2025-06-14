@@ -13,7 +13,7 @@ import {
   multiColorPreset,
   goldenGlowPreset,
   volcanicPreset
-} from "./index"
+} from "@/components/orb/index"
 import { cn } from "@/lib/utils"
 
 interface FridayProps {

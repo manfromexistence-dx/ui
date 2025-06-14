@@ -6,7 +6,7 @@ import {
   SurfaceShadesThemeObject,
   ThemeObject,
 } from "@/types/theme";
-import { otherPresets } from "./presets";
+import { otherPresets } from "@/constants/presets";
 
 // ===> Tailwind V4
 export const basePresetsV4: Record<PresetV4, ThemeObject> = {

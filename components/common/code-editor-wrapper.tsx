@@ -6,7 +6,7 @@ import { Code } from 'lucide-react'
 
 // Dynamically import the CodeEditor component with SSR disabled
 const CodeEditorComponent = dynamic(
-  () => import('./code-preview').then(mod => ({ default: mod.CodeEditor })),
+  () => import('@/components/common/code-preview').then(mod => ({ default: mod.CodeEditor })),
   { ssr: false }
 )
 

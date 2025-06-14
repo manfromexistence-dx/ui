@@ -34,14 +34,15 @@ export async function getSearchSuggestions(query: string): Promise<SearchSuggest
 export function debounce<F extends (...args: any[]) => any>(func: F, wait: number): (...args: Parameters<F>) => void {
   let timeout: ReturnType<typeof setTimeout> | null = null;
   
-  return function(...args: Parameters<F>) {
-    const context = this;
+  return (...args: Parameters<F>) => {
+    // const context = this;
     
-    if (timeout) clearTimeout(timeout);
+    // if (timeout) clearTimeout(timeout);
     
-    timeout = setTimeout(() => {
-      func.apply(context, args);
-      timeout = null;
-    }, wait);
+    // timeout = setTimeout(() => {
+    //   func.apply(context, args);
+    //   timeout = null;
+    // }, wait);
+    null
   };
 }

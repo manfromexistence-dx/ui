@@ -12,7 +12,7 @@ import {
 } from "@/constants/theme-config";
 import { isEqual } from "lodash";
 import React from "react";
-import { useConfig } from "./use-config";
+import { useConfig } from "@/hooks/use-config";
 
 export function useThemeConfig() {
   const [config, setConfig] = useConfig();
