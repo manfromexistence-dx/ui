@@ -12,7 +12,7 @@ import {
 import { ChevronsUpDown, Copy, X, RotateCcw, Check } from "lucide-react";
 import React from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { toast } from "sonner"; // Import the toast function
+import { toast } from "sonner";
 
 const smoothStep = (a: number, b: number, t: number): number => {
     t = Math.max(0, Math.min(1, (t - a) / (b - a)));
@@ -53,7 +53,7 @@ const initialSettings = {
 };
 
 
-export const LiquidGlassDemo = ({
+export const LiquidGlass = ({
     offset = 10,
     className
 }: LiquidGlassProps) => {
@@ -854,7 +854,7 @@ export const LiquidGlass = ({
                         <TabsContent value="shadcn" className="overflow-y-auto">
                             <div className="space-y-4 p-4">
                                 <div className="relative">
-                                      <button onClick={() => handleCopyToClipboard(`npx shadcn-ui@latest add "https://dx-ui.vercel.app/r/liquid-glass.json"`, 'command')} className="absolute top-1/2 translate-y-[-50%] right-2 rounded-md p-1 text-primary transition-colors hover:bg-muted hover:text-zinc-50">
+                                      <button onClick={() => handleCopyToClipboard(`npx shadcn-ui@latest add "https://dx-ui.vercel.app/r/liquid-glass.json"`, 'command')} className="absolute top-1/2 translate-y-[-50%] right-2 rounded-md p-1 text-muted-foreground transition-colors hover:bg-primary-foreground hover:text-primary">
                                         {copiedStates.command ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
                                     </button>
                                     <pre className="border whitespace-pre-wrap rounded-md p-4 text-sm overflow-x-auto py-2 bg-primary-foreground">
@@ -862,7 +862,7 @@ export const LiquidGlass = ({
                                     </pre>
                                 </div>
                                 <div className="relative">
-                                    <button onClick={() => handleCopyToClipboard(generateCodeSnippet(), 'shadcn')} className="absolute top-2 right-2 rounded-md p-1 text-primary transition-colors hover:bg-muted hover:text-zinc-50">
+                                    <button onClick={() => handleCopyToClipboard(generateCodeSnippet(), 'shadcn')} className="absolute top-2 right-2 rounded-md p-1 text-muted-foreground transition-colors hover:bg-primary-foreground hover:text-primary">
                                         {copiedStates.shadcn ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
                                     </button>
                                     <pre className="whitespace-pre-wrap rounded-md p-4 bg-primary-foreground text-sm overflow-x-auto border">
@@ -874,7 +874,7 @@ export const LiquidGlass = ({
                         <TabsContent value="console" className="overflow-y-auto">
                              <div className="p-4">
                                 <div className="relative">
-                                      <button onClick={() => handleCopyToClipboard(generateBrowserConsoleCodeSnippet(), 'console')} className="absolute top-2 right-2 rounded-md p-1 text-primary transition-colors hover:bg-muted hover:text-zinc-50">
+                                      <button onClick={() => handleCopyToClipboard(generateBrowserConsoleCodeSnippet(), 'console')} className="absolute top-2 right-2 rounded-md p-1 text-muted-foreground transition-colors hover:bg-primary-foreground hover:text-primary">
                                         {copiedStates.console ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
                                     </button>
                                     <pre className="whitespace-pre-wrap rounded-md p-4 bg-primary-foreground text-sm overflow-x-auto border">
