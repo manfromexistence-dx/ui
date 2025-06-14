@@ -472,40 +472,40 @@ export function SiteHeader() {
     <header
       className={cn(
         "fixed top-0 z-50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 flex h-12 items-center border-b px-2 w-full",
-        // Add transition for smooth changes
-        "transition-all duration-200 ease-linear",
-        // Base width and position - full width on mobile, default md width with 48px offset
-        "left-0 w-full md:w-[calc(100%-48px)]",
+        // // Add transition for smooth changes
+        // "transition-all duration-200 ease-linear",
+        // // Base width and position - full width on mobile, default md width with 48px offset
+        // "left-0 w-full md:w-[calc(100%-48px)]",
 
-        // Left sidebar positioning (after md breakpoint)
-        leftSidebarState === "expanded"
-          ? "md:w-[calc(100%-256px)] md:left-64" // When left sidebar is expanded
-          : "md:left-12", // When collapsed
+        // // Left sidebar positioning (after md breakpoint)
+        // leftSidebarState === "expanded"
+        //   ? "md:w-[calc(100%-256px)] md:left-64" // When left sidebar is expanded
+        //   : "md:left-12", // When collapsed
 
-        // Width calculations based on sidebar states and viewport
-        // When left sidebar is expanded
-        leftSidebarState === "expanded" &&
-          statecategorysidebar !== "expanded" &&
-          statesubcategorysidebar !== "expanded"
-          ? "md:w-[calc(100%-256px)]"
-          : "",
+        // // Width calculations based on sidebar states and viewport
+        // // When left sidebar is expanded
+        // leftSidebarState === "expanded" &&
+        //   statecategorysidebar !== "expanded" &&
+        //   statesubcategorysidebar !== "expanded"
+        //   ? "md:w-[calc(100%-256px)]"
+        //   : "",
 
-        // When left sidebar is expanded + category sidebar
-        leftSidebarState === "expanded" &&
-          statecategorysidebar === "expanded" &&
-          statesubcategorysidebar !== "expanded"
-          ? "md:w-[calc(100%-256px)]"
-          : "",
+        // // When left sidebar is expanded + category sidebar
+        // leftSidebarState === "expanded" &&
+        //   statecategorysidebar === "expanded" &&
+        //   statesubcategorysidebar !== "expanded"
+        //   ? "md:w-[calc(100%-256px)]"
+        //   : "",
 
-        // When left sidebar is expanded + subCategory sidebar
-        leftSidebarState === "expanded" &&
-          statecategorysidebar !== "expanded" &&
-          statesubcategorysidebar === "expanded"
-          ? "md:w-[calc(100%-256px)] "
-          : "",
+        // // When left sidebar is expanded + subCategory sidebar
+        // leftSidebarState === "expanded" &&
+        //   statecategorysidebar !== "expanded" &&
+        //   statesubcategorysidebar === "expanded"
+        //   ? "md:w-[calc(100%-256px)] "
+        //   : "",
 
-        statecategorysidebar === "expanded" ? "md:w-[calc(100%-256px)]" : "",
-        statesubcategorysidebar === "expanded" ? "md:w-[calc(100%-256px)]" : ""
+        // statecategorysidebar === "expanded" ? "md:w-[calc(100%-256px)]" : "",
+        // statesubcategorysidebar === "expanded" ? "md:w-[calc(100%-256px)]" : ""
       )}
     >
       {/* Header content */}
@@ -662,7 +662,7 @@ export function SiteHeader() {
           <div className="flex h-12 items-center gap-1">{renderChatHeader()}</div>
         )}
       </div>
-      <div className="flex max-h-12 items-center space-x-1.5">
+      <div className="flex max-h-12 items-center">
         {isChatRoute && (
           <SidebarProvider>
             <NavActions />

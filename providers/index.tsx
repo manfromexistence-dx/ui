@@ -120,7 +120,7 @@ export function Providers({
                   // }}
                 >
 
-                  <CustomizerSidebar />
+                  {/* <CustomizerSidebar /> */}
                   <CategorySidebarProvider>
                     <SubCategorySidebarProvider>
                       <div
