@@ -33,7 +33,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarProvider
-} from "./actions-sidebar"
+} from "@/components/layout/sidebar/actions-sidebar"
 
 const data = [
   [

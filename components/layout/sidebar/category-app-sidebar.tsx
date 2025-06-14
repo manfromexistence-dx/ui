@@ -27,9 +27,9 @@ import {
   CategorySidebarMenuButton,
   useCategorySidebar,
   CategorySidebarMenu, CategorySidebarMenuItem,
-} from './category-sidebar'
+} from '@/components/layout/sidebar/category-sidebar'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
-import { History } from './history'
+import { History } from '@/components/layout/sidebar/history'
 
 export function TeamSwitcher() {
   const { toggleCategorySidebar, statecategorysidebar } = useCategorySidebar()
