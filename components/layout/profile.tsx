@@ -16,7 +16,7 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'; // Keep for Language selector
+} from '@/components/ui/dropdown-menu';
 import {
   Settings,
   CreditCard,
@@ -35,7 +35,7 @@ import Link from "next/link";
 
 export function Profile() {
   const [user, setUser] = useState<any>(null);
-  const [betterauth, setBetterAuth] = useState<any>(null); // Keep if used, or remove
+  const [betterauth, setBetterAuth] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [open, setOpen] = useState(false);
   const [language, setLanguage] = useState("English");
@@ -69,11 +69,9 @@ export function Profile() {
             toast.success("Signed out successfully");
             setUser(null);
             setBetterAuth(null);
-            setOpen(false); // Close popover on sign out
-            // Optionally, redirect: window.location.href = '/login';
+            setOpen(false);
           },
           onError: (error: any) => {
-            // console.error("SignOut Error:", error);
             toast.error(
               error?.message || "Sign out failed. Please try again."
             );
@@ -81,7 +79,6 @@ export function Profile() {
         },
       });
     } catch (error: any) {
-      // console.error("SignOut Exception:", error);
       toast.error(
         error?.message || "An unexpected error occurred during sign out."
       );
@@ -282,7 +279,6 @@ export function Profile() {
               </div>
             </div>
           </div>
-          {/* Displaying User, Session, and Account Information similar to page.tsx */}
           {user && user.user && (
             <div className="p-3 border-t text-xs text-muted-foreground max-h-48 overflow-y-auto">
               <h3 className="font-semibold text-sm text-foreground mb-1">User Details</h3>
@@ -305,7 +301,6 @@ export function Profile() {
                   {betterauth.data.map((account: any, index: number) => (
                     <div key={account.id} className="mt-1">
                       <p><strong>Provider {index + 1}:</strong> {account.provider || "N/A"}</p>
-                      {/* Add more account details if needed */}
                     </div>
                   ))}
                 </>

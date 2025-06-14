@@ -1,7 +1,7 @@
 "use client"
 
 import { Button } from "@/components/ui/button"
-import { Search } from "lucide-react"
+import { MoonIcon, Search, SunIcon } from "lucide-react"
 import Friday from "@/components/orb/friday"
 import * as React from "react"
 import { useState, useCallback } from "react"
@@ -43,7 +43,7 @@ import {
 } from "@/components/ui/command"
 import { v4 as uuidv4 } from "uuid"
 import { Separator } from "@/components/ui/separator"
-import {Profile} from "@/components/layout/profile"
+import { Profile } from "@/components/layout/profile"
 import { CustomizerSidebarToggle } from "@/components/customizer/customizer-sidebar"
 
 
@@ -744,6 +744,15 @@ export function SiteHeader() {
             </CommandList>
           </CommandDialog>
         </div>
+        <Button
+          size={"sm"}
+          variant="outline"
+          className='size-8 ml-2'
+          onClick={toggleTheme}
+
+        >
+          {theme === 'light' ? <MoonIcon className="size-4" /> : <SunIcon className="size-4" />}
+        </Button>
         {/* <Profile /> */}
 
         {/* {user ? (
