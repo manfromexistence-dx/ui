@@ -115,9 +115,9 @@ export function Providers({
               <TooltipProvider>
                 <SidebarProvider
                   defaultOpen={false}
-                  // style={{
-                  //   "--sidebar-width": SIDEBAR_WIDTH,
-                  // }}
+                // style={{
+                //   "--sidebar-width": SIDEBAR_WIDTH,
+                // }}
                 >
 
                   {/* <CustomizerSidebar /> */}
@@ -130,9 +130,10 @@ export function Providers({
                         <SiteHeader />
                         {/* <BottomBar /> */}
                         <Main>
-                          {/* <Suspense></Suspense> */}
-                          {children}
-                          <ThemeSync />
+                          <Suspense>
+                            {children}
+                            <ThemeSync />
+                          </Suspense>
                         </Main>
                         <NewYorkToaster />
                         <DefaultToaster />
