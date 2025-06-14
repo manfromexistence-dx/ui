@@ -18,12 +18,12 @@ import {
   Trash,
   Trash2,
 } from "lucide-react"
-import { Button } from "../../ui/button"
+import { Button } from "@/components/ui/button"
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "../../ui/popover"
+} from "@/components/ui/popover"
 import {
   Sidebar,
   SidebarContent,

@@ -17,7 +17,7 @@ import {
   Tv,
   Watch,
 } from 'lucide-react'
-import { ScrollArea } from '../../ui/scroll-area'
+import { ScrollArea } from '@/components/ui/scroll-area'
 import {
   SubCategorySidebar,
   SubCategorySidebarContent,
@@ -28,7 +28,7 @@ import {
   SubCategorySidebarMenu,
   SubCategorySidebarMenuItem,
 } from './subcategory-sidebar'
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../../ui/tooltip'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import { History } from './history'
 
 export function TeamSwitcher() {

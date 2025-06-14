@@ -7,7 +7,7 @@ import {
   AnimationStart,
   AnimationVariant,
   createAnimation,
-} from "../../lib/theme/theme-animations"
+} from "@/lib/theme/theme-animations"
 import { cn } from "@/lib/utils"
 import {
   AllPresetsControl,

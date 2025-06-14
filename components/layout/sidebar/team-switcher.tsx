@@ -9,7 +9,7 @@ import {
   SidebarMenu,
   SidebarMenuItem,
   useSidebar,
-} from "../../ui/sidebar"
+} from "@/components/ui/sidebar"
 import {
   Orb,
   oceanDepthsPreset,
@@ -22,7 +22,7 @@ import {
   volcanicPreset
 } from "@/components/orb/index"
 import Friday from "@/components/orb/friday"
-import { cn } from "../../../lib/utils"
+import { cn } from "@/lib/utils"
 
 export const LogoIcon = (props: SVGProps<SVGSVGElement>) => (
   <svg

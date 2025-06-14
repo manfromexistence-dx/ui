@@ -6,7 +6,6 @@ import { getOptimalForegroundColor } from "@/lib/theme/color-utils";
 import { AlertTriangle, Check, Contrast } from "lucide-react";
 import { useTheme } from "next-themes";
 import React, { useState } from "react";
-// import { ExternalLink } from "../external-link";
 import { ModeSwitcher } from "@/components/customizer/mode-switcher";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";

@@ -1,4 +1,4 @@
-import { Preset, SurfaceShades, SurfaceShadesThemeObject } from "../types/theme";
+import { Preset, SurfaceShades, SurfaceShadesThemeObject } from "@/types/theme";
 import { useThemeConfig } from "./use-theme-config";
 import { useTokens } from "./use-tokens";
 

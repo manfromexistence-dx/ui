@@ -4,7 +4,7 @@ import {
   ThemeObject,
   ThemeProperties,
   ThemeProperty,
-} from "../types/theme";
+} from "@/types/theme";
 import { colorFormatter } from "@/lib/theme/color-converter";
 import { setStyleProperty } from "@/lib/utils";
 

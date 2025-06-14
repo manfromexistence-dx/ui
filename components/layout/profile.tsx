@@ -1,22 +1,22 @@
 "use client";
 
 import React, { useState, useEffect, useCallback } from "react";
-import { authClient } from "../../lib/auth/auth-client";
+import { authClient } from "@/lib/auth/auth-client";
 import { toast } from "sonner";
 
-import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
-import { Button } from "../ui/button";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "../ui/popover";
+} from "@/components/ui/popover";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '../ui/dropdown-menu'; // Keep for Language selector
+} from '@/components/ui/dropdown-menu'; // Keep for Language selector
 import {
   Settings,
   CreditCard,

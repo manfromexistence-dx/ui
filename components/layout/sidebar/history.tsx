@@ -28,9 +28,9 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "../../ui/dialog"
-import { Input } from "../../ui/input"
-import { Button } from "../../ui/button"
+} from "@/components/ui/dialog"
+import { Input } from "@/components/ui/input"
+import { Button } from "@/components/ui/button"
 import {
   Command,
   CommandDialog,
@@ -39,14 +39,14 @@ import {
   CommandInput,
   CommandItem,
   CommandList
-} from "../../ui/command" // Import Command components
+} from "@/components/ui/command" // Import Command components
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "../../ui/dropdown-menu"
+} from "@/components/ui/dropdown-menu"
 import {
   SidebarGroup,
   SidebarGroupLabel,
@@ -55,7 +55,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   useSidebar,
-} from "../../ui/sidebar"
+} from "@/components/ui/sidebar"
 
 // Modify the Chat interface to include isPinned
 interface Chat {

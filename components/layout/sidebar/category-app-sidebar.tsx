@@ -18,7 +18,7 @@ import {
   Sparkles,
   Video,
 } from 'lucide-react'
-import { ScrollArea } from '../../ui/scroll-area'
+import { ScrollArea } from '@/components/ui/scroll-area'
 import {
   CategorySidebar,
   CategorySidebarContent,
@@ -28,7 +28,7 @@ import {
   useCategorySidebar,
   CategorySidebarMenu, CategorySidebarMenuItem,
 } from './category-sidebar'
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../../ui/tooltip'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import { History } from './history'
 
 export function TeamSwitcher() {

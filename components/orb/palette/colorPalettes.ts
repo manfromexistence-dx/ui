@@ -1,4 +1,4 @@
-import { OrbPalettes } from "../types";
+import { OrbPalettes } from "@/components/orb/types";
 
 export const colorPalettes: OrbPalettes = {
   cosmicNebula: {

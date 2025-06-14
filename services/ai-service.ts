@@ -1,5 +1,5 @@
 import { GoogleGenAI } from "@google/genai";
-import { useAIModelStore } from "../store/ai-model-store";
+import { useAIModelStore } from "@/store/ai-model-store";
 
 // Add interface for AI model type
 export interface AIModel {

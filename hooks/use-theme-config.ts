@@ -4,12 +4,12 @@ import {
   DEFAULT_RADIUS,
   DEFAULT_SURFACE,
   initialThemeConfig,
-} from "../constants/themes";
-import { ThemeObject } from "../types/theme";
+} from "@/constants/themes";
+import { ThemeObject } from "@/types/theme";
 import {
   mergeThemeObjects,
   mergeThemeObjectWithInitial,
-} from "../constants/theme-config";
+} from "@/constants/theme-config";
 import { isEqual } from "lodash";
 import React from "react";
 import { useConfig } from "./use-config";

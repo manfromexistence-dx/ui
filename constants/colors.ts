@@ -5,7 +5,7 @@ import {
   SurfaceShadesPreset,
   SurfaceShadesThemeObject,
   ThemeObject,
-} from "../types/theme";
+} from "@/types/theme";
 import { otherPresets } from "./presets";
 
 // ===> Tailwind V4

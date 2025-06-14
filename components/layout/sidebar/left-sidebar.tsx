@@ -28,7 +28,7 @@ import {
   SquareTerminal,
   Trash2,
 } from "lucide-react"
-import { ScrollArea } from "../../ui/scroll-area"
+import { ScrollArea } from "@/components/ui/scroll-area"
 import {
   Sidebar,
   SidebarContent,
@@ -38,15 +38,15 @@ import {
   useSidebar,
   SidebarRail,
   SidebarMenuItem,
-} from "../../ui/sidebar"
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "../../ui/tooltip"
-import { History } from "./history"
-import { TeamSwitcher } from "./team-switcher"
+} from "@/components/ui/sidebar"
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
+import { History } from "@/components/layout/sidebar/history"
+import { TeamSwitcher } from "@/components/layout/sidebar/team-switcher"
 import { useCallback } from "react"
 import { v4 as uuidv4 } from "uuid"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
-import { Banner } from "../banner"
+import { Banner } from "@/components/layout/banner"
 
 export function LeftSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { state, toggleSidebar } = useSidebar()

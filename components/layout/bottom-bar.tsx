@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { Home, Sparkles, CircleSlash2, LibraryBig, Ellipsis } from "lucide-react"
-import { cn } from "../../lib/utils"
+import { cn } from "@/lib/utils"
 import { useParams, usePathname } from "next/navigation"
 import { useCategorySidebar } from "./sidebar/category-sidebar"
 import { useSubCategorySidebar } from "./sidebar/subcategory-sidebar"

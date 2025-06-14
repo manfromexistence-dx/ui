@@ -23,11 +23,6 @@ import {
 } from "manfromexistence-auth/plugins"
 import { passkey } from "manfromexistence-auth/plugins/passkey";
 import { nextCookies } from "manfromexistence-auth/next-js";
-// import { reactInvitationEmail } from "../email/invitation";
-// import { reactResetPasswordEmail } from "../email/reset-password";
-// import { resend } from "../email/resend";
-// import { stripe } from "better-auth/stripe";
-// import { Stripe } from "stripe";
 
 const from = process.env.BETTER_AUTH_EMAIL || "ajju40959@gmail.com";
 const to = process.env.TEST_EMAIL || "";

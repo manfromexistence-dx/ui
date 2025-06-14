@@ -1,4 +1,4 @@
-import { OtherPresets, ThemeObject } from "../types/theme";
+import { OtherPresets, ThemeObject } from "@/types/theme";
 import { monoFonts, sansFonts, serifFonts } from "@/constants/fonts";
 
 export const otherPresets: Record<OtherPresets, ThemeObject> = {

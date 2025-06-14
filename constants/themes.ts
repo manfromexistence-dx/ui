@@ -1,4 +1,4 @@
-import { ThemeConfig, ThemeProperties } from "../types/theme";
+import { ThemeConfig, ThemeProperties } from "@/types/theme";
 import { basePresetsV4 } from "./colors";
 import { otherPresets } from "./presets";
 
