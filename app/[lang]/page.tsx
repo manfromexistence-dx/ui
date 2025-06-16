@@ -53,7 +53,7 @@ export default function HomePage() {
 
   const backgroundStyle = {
     // backgroundImage: `url(${selectedBackground.url})`,
-    backgroundImage: `url(./ios-26-light.jpg)`,
+    backgroundImage: `url(./ios-26-dark.jpg)`,
     // backgroundSize: "500px",
     backgroundPosition: "center center",
     animation: animationActive ? "moveBackground 600s linear infinite" : "none",

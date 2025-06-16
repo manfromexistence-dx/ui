@@ -423,12 +423,12 @@ export const LiquidGlassDemo = ({
                     top: "50%",
                     left: "50%",
                     transform: "translate(-50%, -50%)",
-                    boxShadow: "0 4px 8px rgba(0, 0, 0, 0.25), 0 -10px 25px inset rgba(0, 0, 0, 0.15)",
-                    backdropFilter: `url(#${filterId.current}) contrast(1.2) brightness(1.05) saturate(1.1)`,
+                    boxShadow: "inset 4px 4px 8px rgba(0, 0, 0, 0.3), inset -4px -4px 8px rgba(255, 255, 255, 0.4)",
+                    backdropFilter: `url(#${filterId.current}) contrast(1.2) brightness(1.05) saturate(1.1) blur(0.25px)`,
                     //  contrast(1.2) brightness(1.05) saturate(1.1)
                 }}
                 className={cn(
-                    `pointer-events-auto flex h-32 w-64 cursor-grab overflow-hidden border rounded-full`,
+                    `pointer-events-auto flex h-32 w-64 cursor-grab overflow-hidden rounded-full border-white border-[1.5px] hover:bg-[#ff7575a8]`,
                     className
                 )}
             />
