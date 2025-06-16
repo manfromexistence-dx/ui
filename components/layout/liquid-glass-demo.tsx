@@ -4,7 +4,6 @@ import { cn } from "@/lib/utils";
 import { useEffect, useRef, useCallback, useState } from "react";
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
-import { Switch } from "@/components/ui/switch";
 import {
     Collapsible,
     CollapsibleContent,
@@ -15,7 +14,6 @@ import React from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
 
-// Helper functions (unchanged)
 const smoothStep = (a: number, b: number, t: number): number => {
     t = Math.max(0, Math.min(1, (t - a) / (b - a)));
     return t * t * (3 - 2 * t);
@@ -46,18 +44,12 @@ interface LiquidGlassProps {
     className?: string;
 }
 
-// Updated initial settings to include chromatic values
 const initialSettings = {
     distortWidth: 0.3,
     distortHeight: 0.2,
     distortRadius: 0.6,
     smoothStepEdge: 0.8,
     distanceOffset: 0.15,
-    isChromaticEnabled: false,
-    chromaticR: 0,
-    chromaticG: 10,
-    chromaticB: 20,
-    outputBlur: 0.7,
 };
 
 
@@ -75,20 +67,11 @@ export const LiquidGlassDemo = ({
         console: false,
     });
 
-    // SDF and Distortion states
     const [distortWidth, setDistortWidth] = useState(initialSettings.distortWidth);
     const [distortHeight, setDistortHeight] = useState(initialSettings.distortHeight);
     const [distortRadius, setDistortRadius] = useState(initialSettings.distortRadius);
     const [smoothStepEdge, setSmoothStepEdge] = useState(initialSettings.smoothStepEdge);
     const [distanceOffset, setDistanceOffset] = useState(initialSettings.distanceOffset);
-
-    // New Chromatic Aberration states
-    const [isChromaticEnabled, setIsChromaticEnabled] = useState(initialSettings.isChromaticEnabled);
-    const [chromaticR, setChromaticR] = useState(initialSettings.chromaticR);
-    const [chromaticG, setChromaticG] = useState(initialSettings.chromaticG);
-    const [chromaticB, setChromaticB] = useState(initialSettings.chromaticB);
-    const [outputBlur, setOutputBlur] = useState(initialSettings.outputBlur);
-
 
     useEffect(() => {
         if (containerRef.current) {
@@ -105,12 +88,6 @@ export const LiquidGlassDemo = ({
                 setDistortRadius(settings.distortRadius ?? initialSettings.distortRadius);
                 setSmoothStepEdge(settings.smoothStepEdge ?? initialSettings.smoothStepEdge);
                 setDistanceOffset(settings.distanceOffset ?? initialSettings.distanceOffset);
-                // Load chromatic settings from localStorage
-                setIsChromaticEnabled(settings.isChromaticEnabled ?? initialSettings.isChromaticEnabled);
-                setChromaticR(settings.chromaticR ?? initialSettings.chromaticR);
-                setChromaticG(settings.chromaticG ?? initialSettings.chromaticG);
-                setChromaticB(settings.chromaticB ?? initialSettings.chromaticB);
-                setOutputBlur(settings.outputBlur ?? initialSettings.outputBlur);
             }
         } catch (error) {
             console.error("Failed to parse settings from localStorage", error);
@@ -125,29 +102,18 @@ export const LiquidGlassDemo = ({
             distortRadius,
             smoothStepEdge,
             distanceOffset,
-            isChromaticEnabled,
-            chromaticR,
-            chromaticG,
-            chromaticB,
-            outputBlur,
         };
         try {
             localStorage.setItem("liquidGlassSettings", JSON.stringify(settings));
         } catch (error) {
             console.error("Failed to save settings to localStorage", error);
         }
-    }, [distortWidth, distortHeight, distortRadius, smoothStepEdge, distanceOffset, isChromaticEnabled, chromaticR, chromaticG, chromaticB, outputBlur]);
+    }, [distortWidth, distortHeight, distortRadius, smoothStepEdge, distanceOffset]);
 
 
     const canvasRef = useRef<HTMLCanvasElement | null>(null);
     const feImageRef = useRef<SVGFEImageElement | null>(null);
-
-    // Refs for the new filter primitives
-    const redChannelRef = useRef<SVGFEDisplacementMapElement | null>(null);
-    const greenChannelRef = useRef<SVGFEDisplacementMapElement | null>(null);
-    const blueChannelRef = useRef<SVGFEDisplacementMapElement | null>(null);
-    const feGaussianBlurRef = useRef<SVGFEGaussianBlurElement | null>(null);
-
+    const feDisplacementMapRef = useRef<SVGFEDisplacementMapElement | null>(null);
 
     const mouse = useRef<MousePosition>({ x: 0, y: 0 });
     const mouseUsed = useRef(false);
@@ -159,13 +125,6 @@ export const LiquidGlassDemo = ({
         setDistortRadius(initialSettings.distortRadius);
         setSmoothStepEdge(initialSettings.smoothStepEdge);
         setDistanceOffset(initialSettings.distanceOffset);
-        // Reset chromatic settings
-        setIsChromaticEnabled(initialSettings.isChromaticEnabled);
-        setChromaticR(initialSettings.chromaticR);
-        setChromaticG(initialSettings.chromaticG);
-        setChromaticB(initialSettings.chromaticB);
-        setOutputBlur(initialSettings.outputBlur);
-
         try {
             localStorage.removeItem("liquidGlassSettings");
         } catch (error) {
@@ -173,10 +132,35 @@ export const LiquidGlassDemo = ({
         }
     };
 
-    // Code snippet generation is omitted for brevity but would need to be updated as well
+    const handleCopyToClipboard = (text: string, type: 'command' | 'shadcn' | 'console') => {
+        navigator.clipboard.writeText(text).then(() => {
+            setCopiedStates(prev => ({ ...prev, [type]: true }));
+            setTimeout(() => {
+                setCopiedStates(prev => ({ ...prev, [type]: false }));
+            }, 2000);
+
+            // Use Sonner to show a toast notification
+            switch (type) {
+                case 'command':
+                    toast.success("CLI command copied to clipboard.");
+                    break;
+                case 'shadcn':
+                    toast.success("Shadcn-UI code copied to clipboard.");
+                    break;
+                case 'console':
+                    toast.success("JavaScript code copied to clipboard.");
+                    break;
+                default:
+                    toast.success("Copied to clipboard.");
+            }
+        }).catch(err => {
+            console.error('Failed to copy text: ', err);
+            toast.error("Failed to copy to clipboard.");
+        });
+    };
 
     const updateShader = useCallback(() => {
-        if (!canvasRef.current || !feImageRef.current || !redChannelRef.current || !greenChannelRef.current || !blueChannelRef.current || !feGaussianBlurRef.current || width <= 1 || height <= 1) return;
+        if (!canvasRef.current || !feImageRef.current || !feDisplacementMapRef.current || width <= 1 || height <= 1) return;
 
         const canvas = canvasRef.current;
         const context = canvas.getContext("2d");
@@ -228,25 +212,9 @@ export const LiquidGlassDemo = ({
 
         context.putImageData(new ImageData(data, w, h), 0, 0);
         feImageRef.current.setAttributeNS("http://www.w3.org/1999/xlink", "href", canvas.toDataURL());
+        feDisplacementMapRef.current.setAttribute("scale", (maxScale / canvasDPI).toString());
 
-        const baseScale = maxScale / canvasDPI;
-
-        const rScale = isChromaticEnabled ? baseScale + chromaticR : baseScale;
-        const gScale = isChromaticEnabled ? baseScale + chromaticG : baseScale;
-        const bScale = isChromaticEnabled ? baseScale + chromaticB : baseScale;
-
-        redChannelRef.current.setAttribute("scale", rScale.toString());
-        greenChannelRef.current.setAttribute("scale", gScale.toString());
-        blueChannelRef.current.setAttribute("scale", bScale.toString());
-        feGaussianBlurRef.current.setAttribute("stdDeviation", outputBlur.toString());
-
-
-    }, [width, height, distortWidth, distortHeight, distortRadius, smoothStepEdge, distanceOffset, isChromaticEnabled, chromaticR, chromaticG, chromaticB, outputBlur]);
-
-    useEffect(() => {
-        updateShader();
-    }, [updateShader]);
-
+    }, [width, height, distortWidth, distortHeight, distortRadius, smoothStepEdge, distanceOffset]);
 
     useEffect(() => {
         const container = containerRef.current;
@@ -333,89 +301,27 @@ export const LiquidGlassDemo = ({
 
     return (
         <>
-            {/* --- SVG Filter Definition --- */}
             <svg width="0" height="0" style={{ position: "fixed", top: 0, left: 0, pointerEvents: "none", zIndex: 9998 }}>
                 <defs>
                     <filter id={filterId.current} filterUnits="userSpaceOnUse" colorInterpolationFilters="sRGB" x="0" y="0" width={width} height={height}>
-                        {/* The displacement map image, generated from the canvas */}
                         <feImage
                             ref={feImageRef}
                             width={width}
                             height={height}
-                            result="map"
+                            result={`${filterId.current}_map`}
                         />
-
-                        {/* RED channel with strongest displacement */}
                         <feDisplacementMap
-                            ref={redChannelRef}
+                            ref={feDisplacementMapRef}
                             in="SourceGraphic"
-                            in2="map"
+                            in2={`${filterId.current}_map`}
                             xChannelSelector="R"
                             yChannelSelector="G"
-                            scale={0}
-                            result="dispRed"
+                            scale="0"
                         />
-                        <feColorMatrix
-                            in="dispRed"
-                            type="matrix"
-                            values="1 0 0 0 0
-                                    0 0 0 0 0
-                                    0 0 0 0 0
-                                    0 0 0 1 0"
-                            result="red"
-                        />
-
-                        {/* GREEN channel (reference/least displaced) */}
-                        <feDisplacementMap
-                            ref={greenChannelRef}
-                            in="SourceGraphic"
-                            in2="map"
-                            xChannelSelector="R"
-                            yChannelSelector="G"
-                            scale={0}
-                            result="dispGreen"
-                        />
-                        <feColorMatrix
-                            in="dispGreen"
-                            type="matrix"
-                            values="0 0 0 0 0
-                                    0 1 0 0 0
-                                    0 0 0 0 0
-                                    0 0 0 1 0"
-                            result="green"
-                        />
-
-                        {/* BLUE channel with medium displacement */}
-                        <feDisplacementMap
-                            ref={blueChannelRef}
-                            in="SourceGraphic"
-                            in2="map"
-                            xChannelSelector="R"
-                            yChannelSelector="G"
-                            scale={0}
-                            result="dispBlue"
-                        />
-                        <feColorMatrix
-                            in="dispBlue"
-                            type="matrix"
-                            values="0 0 0 0 0
-                                    0 0 0 0 0
-                                    0 0 1 0 0
-                                    0 0 0 1 0"
-                            result="blue"
-                        />
-
-                        {/* Blend channels back together */}
-                        <feBlend in="red" in2="green" mode="screen" result="rg" />
-                        <feBlend in="rg" in2="blue" mode="screen" result="output" />
-
-                        {/* Output blur */}
-                        <feGaussianBlur ref={feGaussianBlurRef} in="output" stdDeviation={outputBlur} />
                     </filter>
                 </defs>
             </svg>
 
-            {/* --- Draggable Glass Element --- */}
             <div
                 ref={containerRef}
                 style={{
@@ -424,15 +330,14 @@ export const LiquidGlassDemo = ({
                     left: "50%",
                     transform: "translate(-50%, -50%)",
                     boxShadow: "0 4px 8px rgba(0, 0, 0, 0.25), 0 -10px 25px inset rgba(0, 0, 0, 0.15)",
-                    backdropFilter: `url(#${filterId.current}) contrast(1.2) brightness(1.05) saturate(1.1)`,
+                    backdropFilter: `url(#${filterId.current}) blur(0.25px) contrast(1.2) brightness(1.05) saturate(1.1)`,
                 }}
                 className={cn(
-                    `pointer-events-auto flex h-64 w-64 cursor-grab overflow-hidden border rounded-full`,
+                    `pointer-events-auto flex h-64 w-64 cursor-grab overflow-hidden border rounded-md`,
                     className
                 )}
             />
 
-            {/* --- Hidden Canvas for generating the map --- */}
             <canvas
                 ref={canvasRef}
                 width={width}
@@ -441,7 +346,6 @@ export const LiquidGlassDemo = ({
                 className={cn(className)}
             />
 
-            {/* --- Customizer UI --- */}
             <Collapsible
                 className="fixed bottom-5 left-1/2 z-[10000] w-[350px] -translate-x-1/2"
             >
@@ -455,7 +359,6 @@ export const LiquidGlassDemo = ({
                     </div>
                 </CollapsibleTrigger>
                 <CollapsibleContent className="mt-2 flex-col gap-4 space-y-4 rounded-md border bg-background/80 p-4 backdrop-blur-sm">
-                    {/* --- Distortion Controls --- */}
                     <div className="grid gap-2">
                         <Label htmlFor="distort-width">SDF Width: {distortWidth.toFixed(2)}</Label>
                         <Slider id="distort-width" min={0} max={0.5} step={0.01} value={[distortWidth]} onValueChange={(value) => setDistortWidth(value[0])} />
@@ -476,31 +379,6 @@ export const LiquidGlassDemo = ({
                         <Label htmlFor="distance-offset">Distance Offset: {distanceOffset.toFixed(2)}</Label>
                         <Slider id="distance-offset" min={-1} max={0.30} step={0.01} value={[distanceOffset]} onValueChange={(value) => setDistanceOffset(value[0])} />
                     </div>
-                    {/* --- Chromatic Aberration Controls --- */}
-                    <div className="space-y-4 rounded-md border p-4">
-                        <div className="flex items-center justify-between">
-                            <Label htmlFor="chromatic-enabled" className="text-base font-medium">Chromatic Effect</Label>
-                            <Switch id="chromatic-enabled" checked={isChromaticEnabled} onCheckedChange={setIsChromaticEnabled} />
-                        </div>
-                        <div className="grid gap-2">
-                            <Label htmlFor="chromatic-r" className={cn(!isChromaticEnabled && "text-muted-foreground")}>Red Channel: {chromaticR}</Label>
-                            <Slider id="chromatic-r" min={-100} max={100} step={1} value={[chromaticR]} onValueChange={(value) => setChromaticR(value[0])} disabled={!isChromaticEnabled} />
-                        </div>
-                        <div className="grid gap-2">
-                            <Label htmlFor="chromatic-g" className={cn(!isChromaticEnabled && "text-muted-foreground")}>Green Channel: {chromaticG}</Label>
-                            <Slider id="chromatic-g" min={-100} max={100} step={1} value={[chromaticG]} onValueChange={(value) => setChromaticG(value[0])} disabled={!isChromaticEnabled} />
-                        </div>
-                        <div className="grid gap-2">
-                            <Label htmlFor="chromatic-b" className={cn(!isChromaticEnabled && "text-muted-foreground")}>Blue Channel: {chromaticB}</Label>
-                            <Slider id="chromatic-b" min={-100} max={100} step={1} value={[chromaticB]} onValueChange={(value) => setChromaticB(value[0])} disabled={!isChromaticEnabled} />
-                        </div>
-                        <div className="grid gap-2">
-                            <Label htmlFor="output-blur" className={cn(!isChromaticEnabled && "text-muted-foreground")}>Output Blur: {outputBlur.toFixed(1)}</Label>
-                            <Slider id="output-blur" min={0} max={5} step={0.1} value={[outputBlur]} onValueChange={(value) => setOutputBlur(value[0])} disabled={!isChromaticEnabled} />
-                        </div>
-                    </div>
-
-
                     <button
                         onClick={handleReset}
                         className="flex w-full items-center justify-center gap-2 rounded-md border border-input bg-background py-2 text-sm font-semibold transition-colors hover:bg-accent hover:text-accent-foreground"
@@ -511,25 +389,20 @@ export const LiquidGlassDemo = ({
                 </CollapsibleContent>
             </Collapsible>
 
-            {/* --- Code Snippet Modal (Unchanged for brevity) --- */}
             {isCodeVisible && (
-                 <Tabs defaultValue="shadcn" className="fixed inset-0 z-[10001] flex items-center justify-center bg-background/50 p-4 backdrop-blur-sm">
-                 <div className="flex max-h-[80vh] w-full max-w-2xl flex-col rounded-lg border bg-background shadow-xl">
-                     <div className="flex items-center justify-between border-b p-4">
-                         <TabsList>
-                             <TabsTrigger value="shadcn">Shadcn Code</TabsTrigger>
-                             <TabsTrigger value="console">Browser Console Code</TabsTrigger>
-                         </TabsList>
-                         <button onClick={() => setIsCodeVisible(false)} className="rounded-md p-1 hover:bg-muted">
-                             <X className="h-4 w-4" />
-                         </button>
-                     </div>
-                     <TabsContent value="shadcn" className="overflow-y-auto">
-                     </TabsContent>
-                     <TabsContent value="console" className="overflow-y-auto">
-                     </TabsContent>
-                 </div>
-             </Tabs>
+                <Tabs defaultValue="shadcn" className="fixed inset-0 z-[10001] flex items-center justify-center bg-background/50 p-4 backdrop-blur-sm">
+                    <div className="flex max-h-[80vh] w-full max-w-2xl flex-col rounded-lg border bg-background shadow-xl">
+                        <div className="flex items-center justify-between border-b p-4">
+                            <TabsList>
+                                <TabsTrigger value="shadcn">Shadcn Code</TabsTrigger>
+                                <TabsTrigger value="console">Browser Console Code</TabsTrigger>
+                            </TabsList>
+                            <button onClick={() => setIsCodeVisible(false)} className="rounded-md p-1 hover:bg-muted">
+                                <X className="h-4 w-4" />
+                            </button>
+                        </div>
+                    </div>
+                </Tabs>
             )}
         </>
     );
