@@ -37,23 +37,23 @@
                     <feDisplacementMap in="SourceGraphic" in2="map" id="redchannel" xChannelSelector="R"
                         yChannelSelector="G" result="dispRed" />
                     <feColorMatrix in="dispRed" type="matrix" values="1 0 0 0 0
-                        0 0 0 0 0
-                        0 0 0 0 0
-                        0 0 0 1 0" result="red" />
+                      0 0 0 0 0
+                      0 0 0 0 0
+                      0 0 0 1 0" result="red" />
                     <!-- GREEN channel (reference / least displaced) -->
                     <feDisplacementMap in="SourceGraphic" in2="map" id="greenchannel" xChannelSelector="R"
                         yChannelSelector="G" result="dispGreen" />
                     <feColorMatrix in="dispGreen" type="matrix" values="0 0 0 0 0
-                        0 1 0 0 0
-                        0 0 0 0 0
-                        0 0 0 1 0" result="green" />
+                      0 1 0 0 0
+                      0 0 0 0 0
+                      0 0 0 1 0" result="green" />
                     <!-- BLUE channel with medium displacement -->
                     <feDisplacementMap in="SourceGraphic" in2="map" id="bluechannel" xChannelSelector="R"
                         yChannelSelector="G" result="dispBlue" />
                     <feColorMatrix in="dispBlue" type="matrix" values="0 0 0 0 0
-                        0 0 0 0 0
-                        0 0 1 0 0
-                        0 0 0 1 0" result="blue" />
+                      0 0 0 0 0
+                      0 0 1 0 0
+                      0 0 0 1 0" result="blue" />
                     <!-- Blend channels back together -->
                     <feBlend in="red" in2="green" mode="screen" result="rg" />
                     <feBlend in="rg" in2="blue" mode="screen" result="output" />
@@ -171,7 +171,6 @@
                 fill="currentColor"></path>
         </svg>
     </a>
-
 
     <script src="script.js"></script>
 </body>
