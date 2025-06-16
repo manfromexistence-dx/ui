@@ -1,0 +1,24 @@
+import LiquidGlassEffect from "@/components/layout/liquid-glass-effect";
+
+export default function Home() {
+  return (
+    <main className="min-h-screen bg-gray-100 dark:bg-gray-900 p-8">
+      <div className="text-center mb-8">
+        <h1 className="text-4xl font-bold">
+          Liquid Glass Displacement Effect
+        </h1>
+        <p className="text-lg text-gray-600 dark:text-gray-400">
+          Drag the glass effect and customize it using the settings panel.
+        </p>
+      </div>
+
+      <div className="relative w-full h-[600px] bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 rounded-lg overflow-hidden">
+        {/* You can place any content here that you want to be seen behind the glass */}
+        <div className="absolute inset-0 flex items-center justify-center">
+          <p className="text-white text-2xl">Content Behind the Glass</p>
+        </div>
+        <LiquidGlassEffect />
+      </div>
+    </main>
+  );
+}
