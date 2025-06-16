@@ -62,7 +62,7 @@ export default function HomePage() {
   return (
     <main
       className="min-h-full p-16 font-serif text-primary min-w-full"
-      style={backgroundStyle}
+      // style={backgroundStyle}
     >
       <div className="mx-auto max-w-screen-lg space-y-2 text-center">
         <h1 className="text-3xl font-bold">Liquid Glass</h1>
@@ -105,6 +105,13 @@ export default function HomePage() {
         </div>
       </div>
       <LiquidGlassDemo />
+
+      <div className="h-100 w-[500px] rounded-md mx-auto border">
+        <div className="h-1/2 w-full bg-white"></div>
+        <div className="h-1 w-full bg-border"></div>
+        <div className="h-1/2 w-full bg-black"></div>
+      </div>
+
       {/* <LiquidGlass /> */}
       {/* <LiquidGlass>
         <span className="text-rose-500">Hello</span>

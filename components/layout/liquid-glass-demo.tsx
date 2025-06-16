@@ -45,11 +45,11 @@ interface LiquidGlassProps {
 }
 
 const initialSettings = {
-    distortWidth: 0.3,
+    distortWidth: 0.44,
     distortHeight: 0.2,
-    distortRadius: 0.6,
-    smoothStepEdge: 0.8,
-    distanceOffset: 0.15,
+    distortRadius: 0.1,
+    smoothStepEdge: 0.65,
+    distanceOffset: 0.30,
 };
 
 
@@ -333,7 +333,7 @@ export const LiquidGlassDemo = ({
                     backdropFilter: `url(#${filterId.current}) blur(0.25px) contrast(1.2) brightness(1.05) saturate(1.1)`,
                 }}
                 className={cn(
-                    `pointer-events-auto flex h-64 w-64 cursor-grab overflow-hidden border rounded-md`,
+                    `pointer-events-auto flex h-32 w-64 cursor-grab overflow-hidden border rounded-full`,
                     className
                 )}
             />
