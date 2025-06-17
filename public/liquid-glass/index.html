@@ -1,17 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Liquid Glass</title>
   <link rel="stylesheet" href="style.css">
-  
-  <script src="https://cdn.jsdelivr.net/npm/tweakpane@4.0.3/dist/tweakpane.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.13.0/gsap.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.13.0/Draggable.min.js"></script>
+</head>
 
-</head>
-</head>
 <body>
   <header>
     <h1 class="fluid">glass<br />displacement</h1>
@@ -31,27 +27,36 @@
     <svg class="filter" xmlns="http://www.w3.org/2000/svg">
       <defs>
         <filter id="filter" color-interpolation-filters="sRGB">
+          <!-- the input displacement image -->
           <feImage x="0" y="0" width="100%" height="100%" result="map"></feImage>
+          <!-- the displacement map to use -->
+          <!-- <feDisplacementMap in2="map" in="SourceGraphic" /> -->
+          <!-- the chromatic aberration for the people -->
+          <!-- RED channel with strongest displacement -->
           <feDisplacementMap in="SourceGraphic" in2="map" id="redchannel" xChannelSelector="R" yChannelSelector="G"
             result="dispRed" />
           <feColorMatrix in="dispRed" type="matrix" values="1 0 0 0 0
-                                0 0 0 0 0
-                                0 0 0 0 0
-                                0 0 0 1 0" result="red" />
+                      0 0 0 0 0
+                      0 0 0 0 0
+                      0 0 0 1 0" result="red" />
+          <!-- GREEN channel (reference / least displaced) -->
           <feDisplacementMap in="SourceGraphic" in2="map" id="greenchannel" xChannelSelector="R" yChannelSelector="G"
             result="dispGreen" />
           <feColorMatrix in="dispGreen" type="matrix" values="0 0 0 0 0
-                                0 1 0 0 0
-                                0 0 0 0 0
-                                0 0 0 1 0" result="green" />
+                      0 1 0 0 0
+                      0 0 0 0 0
+                      0 0 0 1 0" result="green" />
+          <!-- BLUE channel with medium displacement -->
           <feDisplacementMap in="SourceGraphic" in2="map" id="bluechannel" xChannelSelector="R" yChannelSelector="G"
             result="dispBlue" />
           <feColorMatrix in="dispBlue" type="matrix" values="0 0 0 0 0
-                                0 0 0 0 0
-                                0 0 1 0 0
-                                0 0 0 1 0" result="blue" />
+                      0 0 0 0 0
+                      0 0 1 0 0
+                      0 0 0 1 0" result="blue" />
+          <!-- Blend channels back together -->
           <feBlend in="red" in2="green" mode="screen" result="rg" />
           <feBlend in="rg" in2="blue" mode="screen" result="output" />
+          <!-- output blend -->
           <feGaussianBlur in="output" stdDeviation="0.7" />
         </filter>
       </defs>
@@ -59,6 +64,7 @@
     <div class="displacement-debug"></div>
   </div>
   <main>
+    <!-- dock placeholder and instruction -->
     <section class="placeholder">
       <div class="dock-placeholder"></div>
       <span class="arrow arrow--debug">
@@ -70,6 +76,7 @@
         </svg>
       </span>
     </section>
+    <!-- some random text stuff -->
     <section>
       <p class="fluid">
         How do you create backdrop displacement with HTML and CSS? SVG. The
@@ -83,6 +90,7 @@
         Gecko/Webkit.
       </p>
     </section>
+    <!-- app grid -->
     <section>
       <div class="apps">
         <div class="app">
@@ -125,6 +133,7 @@
         modes or freestyle it in "free" mode.
       </p>
     </section>
+    <!-- images -->
     <section class="images">
       <img src="https://fastly.picsum.photos/id/841/300/300.jpg?hmac=59ZNBwU1FjRrwpU3J7NDerfr_DHq-JPYXqnyumDt17U"
         alt="" />
@@ -144,6 +153,7 @@
       </p>
     </section>
   </main>
-  <script src="script.js"></script>
+  <script type="module" src="script.js"></script>
 </body>
+
 </html>
