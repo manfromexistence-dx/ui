@@ -377,7 +377,7 @@ export const LiquidGlass = () => {
 
         {/* Configuration Panel */}
         <motion.div
-          className="config-panel fixed bottom-8 right-8 w-[300px] z-[999999]"
+          className="config-panel fixed bottom-8 right-8 w-[300px]"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.5 }}
