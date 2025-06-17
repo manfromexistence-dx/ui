@@ -3,6 +3,7 @@
 
 import { useState } from "react";
 import { LiquidGlassDemo } from "@/components/layout/liquid-glass-demo";
+import { LiquidGlass } from "@/components/layout/liquid-glass";
 import Link from "next/link";
 import {
   DropdownMenu,
@@ -104,7 +105,8 @@ export default function HomePage() {
           </DropdownMenu>
         </div>
       </div>
-      <LiquidGlassDemo />
+      {/* <LiquidGlassDemo /> */}
+      <LiquidGlass />
 
       <div className="h-50 w-60 rounded-md mx-auto border p-4">
         <div className="h-1/2 w-full bg-white"></div>
