@@ -1,6 +1,6 @@
 "use client";
 
-import { motion, useMotionValue } from "framer-motion";
+import { motion, useMotionValue, AnimatePresence } from "framer-motion";
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -30,7 +30,8 @@ const presets = {
     g: 10,
     b: 20,
     icons: true,
-    frost: 0.05
+    frost: 0.05,
+    chromaticAberrationEnabled: true,
   },
   pill: {
     width: 200,
@@ -49,7 +50,8 @@ const presets = {
     g: 10,
     b: 20,
     icons: false,
-    frost: 0
+    frost: 0,
+    chromaticAberrationEnabled: true,
   },
   bubble: {
     radius: 70,
@@ -68,7 +70,8 @@ const presets = {
     g: 10,
     b: 20,
     icons: false,
-    frost: 0
+    frost: 0,
+    chromaticAberrationEnabled: true,
   },
   free: {
     width: 140,
@@ -87,7 +90,8 @@ const presets = {
     g: 10,
     b: 20,
     icons: false,
-    frost: 0
+    frost: 0,
+    chromaticAberrationEnabled: true,
   }
 };
 
@@ -113,6 +117,7 @@ interface LiquidGlassConfig {
   theme: string;
   debug: boolean;
   preset: string;
+  chromaticAberrationEnabled: boolean;
 }
 
 export const LiquidGlass = () => {
@@ -214,7 +219,6 @@ export const LiquidGlass = () => {
 
   return (
     <div className="min-h-screen">
-      {/* Background can be added here if desired */}
       <div ref={constraintsRef} className="relative h-screen p-8">
         {/* Header */}
         <motion.div
@@ -223,10 +227,10 @@ export const LiquidGlass = () => {
           animate={{ y: 0, opacity: 1 }}
           transition={{ delay: 0.2 }}
         >
-          <h1 className="text-5xl font-bold mb-4">
+          <h1 className="text-5xl font-bold mb-4 bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
             Liquid Glass Interface
           </h1>
-          <Badge variant="secondary" className="backdrop-blur-sm">
+          <Badge variant="secondary" className="backdrop-blur-sm bg-secondary/50">
             Drag the glass element • Try different presets
           </Badge>
         </motion.div>
@@ -246,7 +250,7 @@ export const LiquidGlass = () => {
             width: `${config.width}px`,
             height: `${config.height}px`,
             borderRadius: `${config.radius}px`,
-            background: `rgba(${config.theme === 'light' ? '255, 255, 255' : '0, 0, 0'}, ${config.frost})`,
+            background: `hsla(var(--card) / ${config.frost})`,
             opacity: 1,
             position: 'absolute',
             zIndex: 999999,
@@ -259,13 +263,22 @@ export const LiquidGlass = () => {
           whileDrag={{ scale: 1.02 }}
         >
           <div className="nav-wrap w-full h-full overflow-hidden" style={{ borderRadius: 'inherit' }}>
-            <nav className={`w-full h-full flex items-center justify-center p-2 ${config.icons ? 'opacity-100' : 'opacity-0'}`}
-                 style={{ transition: 'opacity 0.26s ease-out' }}>
-              <img src="https://assets.codepen.io/605876/finder.png" alt="App icon" className="w-[60px] aspect-square" />
-              <img src="https://assets.codepen.io/605876/launch-control.png" alt="App icon" className="w-[60px] aspect-square" />
-              <img src="https://assets.codepen.io/605876/safari.png" alt="App icon" className="w-[60px] aspect-square" />
-              <img src="https://assets.codepen.io/605876/calendar.png" alt="App icon" className="w-[60px] aspect-square" />
-            </nav>
+            <AnimatePresence>
+                {config.icons && (
+                    <motion.nav
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        transition={{ duration: 0.2 }}
+                        className="w-full h-full flex items-center justify-center p-2"
+                    >
+                        <img src="https://assets.codepen.io/605876/finder.png" alt="App icon" className="w-[60px] aspect-square" />
+                        <img src="https://assets.codepen.io/605876/launch-control.png" alt="App icon" className="w-[60px] aspect-square" />
+                        <img src="https://assets.codepen.io/605876/safari.png" alt="App icon" className="w-[60px] aspect-square" />
+                        <img src="https://assets.codepen.io/605876/calendar.png" alt="App icon" className="w-[60px] aspect-square" />
+                    </motion.nav>
+                )}
+            </AnimatePresence>
           </div>
 
           {/* SVG Filter Definition */}
@@ -273,13 +286,14 @@ export const LiquidGlass = () => {
             <defs>
               <filter id="chromatic-filter" colorInterpolationFilters="sRGB">
                 <feImage id="displacement-map-image" x="0" y="0" width="100%" height="100%" result="map" />
-                <feDisplacementMap in="SourceGraphic" in2="map" xChannelSelector={config.x} yChannelSelector={config.y} scale={config.scale + config.r} result="dispRed" />
+                
+                <feDisplacementMap in="SourceGraphic" in2="map" xChannelSelector={config.x} yChannelSelector={config.y} scale={config.chromaticAberrationEnabled ? config.scale + config.r : config.scale} result="dispRed" />
                 <feColorMatrix in="dispRed" type="matrix" values="1 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 1 0" result="red" />
                 
-                <feDisplacementMap in="SourceGraphic" in2="map" xChannelSelector={config.x} yChannelSelector={config.y} scale={config.scale + config.g} result="dispGreen" />
+                <feDisplacementMap in="SourceGraphic" in2="map" xChannelSelector={config.x} yChannelSelector={config.y} scale={config.chromaticAberrationEnabled ? config.scale + config.g : config.scale} result="dispGreen" />
                 <feColorMatrix in="dispGreen" type="matrix" values="0 0 0 0 0  0 1 0 0 0  0 0 0 0 0  0 0 0 1 0" result="green" />
 
-                <feDisplacementMap in="SourceGraphic" in2="map" xChannelSelector={config.x} yChannelSelector={config.y} scale={config.scale + config.b} result="dispBlue" />
+                <feDisplacementMap in="SourceGraphic" in2="map" xChannelSelector={config.x} yChannelSelector={config.y} scale={config.chromaticAberrationEnabled ? config.scale + config.b : config.scale} result="dispBlue" />
                 <feColorMatrix in="dispBlue" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 1 0 0  0 0 0 1 0" result="blue" />
 
                 <feBlend in="red" in2="green" mode="screen" result="rg" />
@@ -308,9 +322,9 @@ export const LiquidGlass = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.5 }}
         >
-          <Card className="backdrop-blur-xl  border ">
+          <Card className="bg-card/80 backdrop-blur-xl">
             <CardHeader className="pb-2">
-              <CardTitle className="text-xl flex justify-between items-center">
+              <CardTitle className="text-xl flex justify-between items-center text-card-foreground">
                 Configuration
               </CardTitle>
             </CardHeader>
@@ -320,7 +334,7 @@ export const LiquidGlass = () => {
                   <TabsTrigger value="presets">Presets</TabsTrigger>
                   <TabsTrigger value="advanced" disabled={config.preset !== 'free'}>Advanced</TabsTrigger>
                 </TabsList>
-                <TabsContent value="presets" className="space-y-4">
+                <TabsContent value="presets" className="space-y-4 text-card-foreground">
                   {/* Preset Controls */}
                   <div className="space-y-2">
                     <Label htmlFor="preset">Mode</Label>
@@ -353,8 +367,12 @@ export const LiquidGlass = () => {
                     <Switch id="icons" checked={config.icons} onCheckedChange={(checked) => handleConfigChange('icons', checked)} />
                     <Label htmlFor="icons">Show Icons</Label>
                   </div>
+                  <div className="flex items-center space-x-2">
+                    <Switch id="chromatic-toggle" checked={config.chromaticAberrationEnabled} onCheckedChange={(checked) => handleConfigChange('chromaticAberrationEnabled', checked)} />
+                    <Label htmlFor="chromatic-toggle">Enable Chromatic Effect</Label>
+                  </div>
                 </TabsContent>
-                <TabsContent value="advanced" className="space-y-4">
+                <TabsContent value="advanced" className="space-y-4 text-card-foreground">
                   {/* Advanced Controls */}
                   <div className="space-y-2">
                     <Label htmlFor="width">Width: {config.width}px</Label>
@@ -378,26 +396,26 @@ export const LiquidGlass = () => {
                   </div>
                   
                   {/* Chromatic Aberration Controls */}
-                  <div className="space-y-4 pt-4 mt-4 border-t ">
+                  <div className="space-y-4 pt-4 mt-4 border-t border-border">
                       <Label className="text-sm font-medium">Chromatic Aberration</Label>
                       <div className="space-y-2">
                           <Label htmlFor="red">Red: {config.r}</Label>
-                          <Slider id="red" min={-100} max={100} step={1} value={[config.r]} onValueChange={([value]) => handleConfigChange('r', value)} />
+                          <Slider id="red" min={-100} max={100} step={1} value={[config.r]} onValueChange={([value]) => handleConfigChange('r', value)} disabled={!config.chromaticAberrationEnabled} />
                       </div>
                       <div className="space-y-2">
                           <Label htmlFor="green">Green: {config.g}</Label>
-                          <Slider id="green" min={-100} max={100} step={1} value={[config.g]} onValueChange={([value]) => handleConfigChange('g', value)} />
+                          <Slider id="green" min={-100} max={100} step={1} value={[config.g]} onValueChange={([value]) => handleConfigChange('g', value)} disabled={!config.chromaticAberrationEnabled} />
                       </div>
                       <div className="space-y-2">
                           <Label htmlFor="blue">Blue: {config.b}</Label>
-                          <Slider id="blue" min={-100} max={100} step={1} value={[config.b]} onValueChange={([value]) => handleConfigChange('b', value)} />
+                          <Slider id="blue" min={-100} max={100} step={1} value={[config.b]} onValueChange={([value]) => handleConfigChange('b', value)} disabled={!config.chromaticAberrationEnabled} />
                       </div>
                   </div>
                 </TabsContent>
               </Tabs>
             </CardContent>
             <CardFooter>
-              <Button variant="outline" className="w-full " onClick={() => handlePresetChange('dock')}>
+              <Button variant="outline" className="w-full" onClick={() => handlePresetChange('dock')}>
                 Reset to Default
               </Button>
             </CardFooter>
@@ -408,22 +426,22 @@ export const LiquidGlass = () => {
       {/* Global CSS */}
       <style jsx global>{`
         body {
+          background-color: hsl(var(--background));
           background-image:
-            radial-gradient(at 27% 37%, hsla(215, 98%, 61%, 1) 0px, transparent 0%),
-            radial-gradient(at 97% 21%, hsla(125, 98%, 72%, 1) 0px, transparent 50%),
-            radial-gradient(at 52% 99%, hsla(355, 98%, 61%, 1) 0px, transparent 50%),
-            radial-gradient(at 10% 29%, hsla(256, 96%, 67%, 1) 0px, transparent 50%),
-            radial-gradient(at 97% 96%, hsla(38, 60%, 74%, 1) 0px, transparent 50%),
-            radial-gradient(at 33% 50%, hsla(222, 67%, 73%, 1) 0px, transparent 50%),
-            radial-gradient(at 79% 53%, hsla(343, 68%, 79%, 1) 0px, transparent 50%);
-          background-color: #1a1c22;
+            radial-gradient(at 27% 37%, hsl(var(--primary)) 0px, transparent 50%),
+            radial-gradient(at 97% 21%, hsl(var(--secondary)) 0px, transparent 50%),
+            radial-gradient(at 52% 99%, hsl(var(--destructive)) 0px, transparent 50%),
+            radial-gradient(at 10% 29%, hsl(var(--primary) / 0.5) 0px, transparent 50%),
+            radial-gradient(at 97% 96%, hsl(var(--secondary) / 0.5) 0px, transparent 50%),
+            radial-gradient(at 33% 50%, hsl(var(--ring)) 0px, transparent 50%),
+            radial-gradient(at 79% 53%, hsl(var(--accent)) 0px, transparent 50%);
         }
         .effect {
-          box-shadow: 0 0 2px 1px rgba(255, 255, 255, 0.15) inset,
-                      0 0 10px 4px rgba(255, 255, 255, 0.1) inset,
-                      0px 4px 16px rgba(17, 17, 26, 0.05),
-                      0px 8px 24px rgba(17, 17, 26, 0.05),
-                      0px 16px 56px rgba(17, 17, 26, 0.05);
+          box-shadow: 0 0 2px 1px hsl(var(--primary) / 0.1) inset,
+                      0 0 10px 4px hsl(var(--primary) / 0.05) inset,
+                      0px 4px 16px hsl(var(--foreground) / 0.05),
+                      0px 8px 24px hsl(var(--foreground) / 0.05),
+                      0px 16px 56px hsl(var(--foreground) / 0.05);
         }
         .placeholder {
           width: 336px;
