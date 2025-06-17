@@ -65,7 +65,7 @@ export default function HomePage() {
       className="min-h-full p-16 font-serif text-primary min-w-full"
       style={backgroundStyle}
     >
-      <div className="mx-auto max-w-screen-lg space-y-2 text-center">
+      {/* <div className="mx-auto max-w-screen-lg space-y-2 text-center">
         <h1 className="text-3xl font-bold">Liquid Glass</h1>
         <Link href="https://x.com/manfrexistence" className="mx-auto flex w-max items-center justify-center gap-2 rounded-md border bg-background p-1.5 backdrop-blur-sm">
           manfromexistence
@@ -104,11 +104,14 @@ export default function HomePage() {
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
-      </div>
+      </div> */}
+
       {/* <LiquidGlassDemo /> */}
+
+      
       <LiquidGlass />
 
-      <div className="h-50 w-60 rounded-md mx-auto border p-4">
+      {/* <div className="h-50 w-60 rounded-md mx-auto border p-4">
         <div className="h-1/2 w-full bg-white"></div>
         <div className="h-1 w-full bg-border"></div>
         <div className="h-1/2 w-full bg-black"></div>
@@ -213,7 +216,7 @@ export default function HomePage() {
         Soluta pariatur ea vitae sequi debitis esse iure ullam tempore quam nulla? Harum explicabo ipsum sapiente, hic, voluptas placeat omnis deserunt soluta ea dolore eum ipsa, natus quam accusamus nulla?
         Accusantium, in sint! Doloribus voluptatibus sed quod! Porro commodi et laudantium, inventore cum quos veritatis nihil dignissimos illum quo ea. Tempora error numquam, animi ducimus sit esse officia repellat nulla?
         Reprehenderit eos fuga, ipsam architecto recusandae et, necessitatibus vitae ex libero alias sit odit reiciendis numquam doloremque provident impedit beatae dolorem. Soluta vitae deleniti inventore obcaecati animi molestias, illo alias.
-        Neque quibusdam asperiores quidem consequuntur voluptate. Repellendus libero corporis at sunt, eos laboriosam voluptas necessitatibus unde deserunt deleniti temporibus, aliquam, magnam accusantium. Incidunt repudiandae impedit fugit libero in. Suscipit, veniam.</span>
+        Neque quibusdam asperiores quidem consequuntur voluptate. Repellendus libero corporis at sunt, eos laboriosam voluptas necessitatibus unde deserunt deleniti temporibus, aliquam, magnam accusantium. Incidunt repudiandae impedit fugit libero in. Suscipit, veniam.</span> */}
 
       {/* <LiquidGlass /> */}
       {/* <LiquidGlass>

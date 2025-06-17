@@ -1,10 +1,10 @@
-// app/components/DraggableGlassEffect.tsx
+// app/components/LiquidGlass.tsx
 
 "use client";
 
 import * as React from "react";
 import { useState, useEffect, useMemo } from "react";
-import { motion } from "framer-motion";
+import { motion, useWillChange } from "framer-motion";
 
 // Import shadcn-ui components
 import {
@@ -29,7 +29,6 @@ import { Switch } from "@/components/ui/switch";
 type Config = {
   preset: "dock" | "pill" | "bubble" | "free";
   theme: "system" | "light" | "dark";
-  debug: boolean;
   top: boolean;
   icons: boolean;
   scale: number;
@@ -73,7 +72,7 @@ const base = {
   radius: 16,
   border: 0.07,
   lightness: 50,
-  displace: 0,
+  displace: 0.2,
   blend: "difference" as Config["blend"],
   x: "R" as Config["x"],
   y: "B" as Config["y"],
@@ -82,6 +81,8 @@ const base = {
   r: 0,
   g: 10,
   b: 20,
+  frost: 0.05,
+  top: false,
 };
 
 const presets: Record<Config["preset"], Partial<Config>> = {
@@ -89,9 +90,7 @@ const presets: Record<Config["preset"], Partial<Config>> = {
     ...base,
     width: 336,
     height: 96,
-    displace: 0.2,
     icons: true,
-    frost: 0.05,
   },
   pill: {
     ...base,
@@ -120,6 +119,7 @@ const presets: Record<Config["preset"], Partial<Config>> = {
     blur: 10,
     displace: 0,
     scale: -300,
+    frost: 0,
   },
 };
 
@@ -127,8 +127,6 @@ const initialConfig: Config = {
   ...presets.dock,
   preset: "dock",
   theme: "system",
-  debug: false,
-  top: false,
 } as Config;
 
 /**
@@ -138,6 +136,7 @@ export function LiquidGlass() {
   const [config, setConfig] = useState<Config>(initialConfig);
   const [isMounted, setIsMounted] = useState(false);
   const containerRef = React.useRef<HTMLDivElement>(null);
+  const willChange = useWillChange();
 
   // Generate the SVG for the displacement map filter as a data URI
   const displacementImageUri = useMemo(() => {
@@ -146,7 +145,7 @@ export function LiquidGlass() {
     const borderPx = Math.min(width, height) * (border * 0.5);
 
     const svgString = `
-      <svg viewBox="0 0 ${width} ${height}" xmlns="http://www.w3.org/2000/svg">
+      <svg className="displacement-image" viewBox="0 0 ${width} ${height}" xmlns="http://www.w3.org/2000/svg">
         <defs>
           <linearGradient id="red-grad" x1="100%" y1="0%" x2="0%" y2="0%">
             <stop offset="0%" stop-color="#0000"/>
@@ -163,7 +162,6 @@ export function LiquidGlass() {
         <rect x="${borderPx}" y="${borderPx}" width="${width - borderPx * 2}" height="${height - borderPx * 2}" rx="${radius}" fill="hsl(0 0% ${lightness}% / ${alpha})" style="filter:blur(${blur}px)" />
       </svg>`;
 
-    // Must be encoded to be used in a data URI
     const encoded = encodeURIComponent(svgString);
     return `data:image/svg+xml,${encoded}`;
   }, [
@@ -177,16 +175,11 @@ export function LiquidGlass() {
     config.blend,
   ]);
 
-  // Update global styles and data attributes when config changes
+  // Update global theme attribute when it changes
   useEffect(() => {
     document.documentElement.setAttribute("data-theme", config.theme);
-    if (config.debug) {
-      document.documentElement.setAttribute("data-debug", "true");
-    } else {
-      document.documentElement.removeAttribute("data-debug");
-    }
-  }, [config.theme, config.debug]);
-  
+  }, [config.theme]);
+
   // Set mounted state after initial render to avoid SSR issues
   useEffect(() => {
     setIsMounted(true);
@@ -216,36 +209,74 @@ export function LiquidGlass() {
         ref={containerRef}
         className="relative flex h-[80vh] min-h-[500px] w-full items-center justify-center overflow-hidden rounded-lg border bg-slate-100 p-4 dark:bg-slate-900/80"
       >
-        <div className="absolute inset-0 z-0 h-full w-full bg-[linear-gradient(to_right,#8080800a_1px,transparent_1px),linear-gradient(to_bottom,#8080800a_1px,transparent_1px)] bg-[size:14px_24px]"></div>
+        <div className="pointer-events-none absolute inset-0 z-0 h-full w-full bg-[linear-gradient(to_right,#8080800a_1px,transparent_1px),linear-gradient(to_bottom,#8080800a_1px,transparent_1px)] bg-[size:14px_24px]"></div>
         <div className="absolute text-sm text-slate-500 dark:text-slate-400">
           Drag the element
         </div>
-        
+
         {/* SVG filter definitions */}
         <svg className="absolute h-0 w-0">
           <defs>
             <filter id="glass-filter">
-              <feGaussianBlur in="SourceGraphic" stdDeviation={config.displace} />
+              {/* Common inputs */}
               <feImage
                 href={displacementImageUri}
-                result="displacementImage"
+                result="map"
                 width={config.width}
                 height={config.height}
               />
-              {/* Main displacement */}
-              <feDisplacementMap
+              <feGaussianBlur
                 in="SourceGraphic"
-                in2="displacementImage"
-                scale={config.scale}
+                stdDeviation={config.displace}
+                result="source"
+              />
+
+              {/* Isolate R, G, B from the blurred source */}
+              <feComponentTransfer in="source" result="R-source">
+                <feFuncG type="constant" slope="0" intercept="0" />
+                <feFuncB type="constant" slope="0" intercept="0" />
+              </feComponentTransfer>
+              <feComponentTransfer in="source" result="G-source">
+                <feFuncR type="constant" slope="0" intercept="0" />
+                <feFuncB type="constant" slope="0" intercept="0" />
+              </feComponentTransfer>
+              <feComponentTransfer in="source" result="B-source">
+                <feFuncR type="constant" slope="0" intercept="0" />
+                <feFuncG type="constant" slope="0" intercept="0" />
+              </feComponentTransfer>
+
+              {/* Displace each source channel using the map and its specific scale */}
+              <feDisplacementMap
+                in="R-source"
+                in2="map"
+                scale={config.scale + config.r}
                 xChannelSelector={config.x}
                 yChannelSelector={config.y}
+                result="displacedR"
               />
-              {/* Chromatic Aberration Simulation */}
-              <feDisplacementMap in="SourceGraphic" in2="displacementImage" scale={config.scale + config.r} xChannelSelector="R" yChannelSelector="R" result="red" />
-              <feDisplacementMap in="SourceGraphic" in2="displacementImage" scale={config.scale + config.g} xChannelSelector="G" yChannelSelector="G" result="green" />
-              <feDisplacementMap in="SourceGraphic" in2="displacementImage" scale={config.scale + config.b} xChannelSelector="B" yChannelSelector="B" result="blue" />
-              <feBlend in="red" in2="green" mode="lighten" result="yellow" />
-              <feBlend in="yellow" in2="blue" mode="lighten" />
+              <feDisplacementMap
+                in="G-source"
+                in2="map"
+                scale={config.scale + config.g}
+                xChannelSelector={config.x}
+                yChannelSelector={config.y}
+                result="displacedG"
+              />
+              <feDisplacementMap
+                in="B-source"
+                in2="map"
+                scale={config.scale + config.b}
+                xChannelSelector={config.x}
+                yChannelSelector={config.y}
+                result="displacedB"
+              />
+
+              {/* Re-composite the displaced channels */}
+              <feMerge>
+                <feMergeNode in="displacedR" />
+                <feMergeNode in="displacedG" />
+                <feMergeNode in="displacedB" />
+              </feMerge>
             </filter>
           </defs>
         </svg>
@@ -256,10 +287,7 @@ export function LiquidGlass() {
           dragMomentum={false}
           className="relative z-10 cursor-grab active:cursor-grabbing"
           style={{
-            // Animated properties
-            width: config.width,
-            height: config.height,
-            borderRadius: config.radius,
+            willChange,
             // Effects
             backdropFilter: `blur(${config.frost * 25}px)`,
             filter: 'url(#glass-filter)',
@@ -274,7 +302,13 @@ export function LiquidGlass() {
           }}
           transition={{ type: "spring", stiffness: 200, damping: 30 }}
         >
-          {config.icons && <div className="p-4 text-white">Icons here</div>}
+          {config.icons && (
+            <div className="flex h-full items-center justify-center gap-4 text-white">
+              <svg width="32" height="32" viewBox="0 0 24 24"><path fill="currentColor" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10s10-4.48 10-10S17.52 2 12 2"/></svg>
+              <svg width="32" height="32" viewBox="0 0 24 24"><path fill="currentColor" d="M2 12h20v2H2z"/></svg>
+              <svg width="32" height="32" viewBox="0 0 24 24"><path fill="currentColor" d="M12 2L2 22h20z"/></svg>
+            </div>
+           )}
         </motion.div>
       </div>
     </div>
@@ -294,6 +328,11 @@ function Configurator({
   onPresetChange: (preset: Config["preset"]) => void;
 }) {
   const isFreeMode = config.preset === "free";
+  const setConfigValue =
+    <K extends keyof Config>(key: K) =>
+    (value: Config[K]) => {
+      setConfig((c) => ({ ...c, [key]: value }));
+    };
 
   return (
     <Card className="w-full max-w-sm">
@@ -317,17 +356,11 @@ function Configurator({
         </div>
 
         <div className="flex items-center justify-between">
-          <Label htmlFor="debug-mode">Debug Mode</Label>
-          <Switch
-            id="debug-mode"
-            checked={config.debug}
-            onCheckedChange={(checked) => setConfig((c) => ({ ...c, debug: checked }))}
-          />
-        </div>
-        
-        <div className="flex items-center justify-between">
           <Label htmlFor="theme-selector">Theme</Label>
-          <Select value={config.theme} onValueChange={(theme) => setConfig(c => ({...c, theme: theme as Config['theme']}))}>
+          <Select
+            value={config.theme}
+            onValueChange={setConfigValue("theme")}
+          >
             <SelectTrigger className="w-[120px]">
               <SelectValue />
             </SelectTrigger>
@@ -339,34 +372,63 @@ function Configurator({
           </Select>
         </div>
 
-        <Accordion type="single" collapsible className="w-full" disabled={!isFreeMode}>
+        <Accordion
+          type="single"
+          collapsible
+          className="w-full"
+          disabled={!isFreeMode}
+          defaultValue="item-1"
+        >
           <AccordionItem value="item-1">
             <AccordionTrigger>
-                <span className={!isFreeMode ? 'text-muted-foreground' : ''}>
-                    Settings
-                </span>
+              <span className={!isFreeMode ? "text-muted-foreground" : ""}>
+                Settings
+              </span>
             </AccordionTrigger>
             <AccordionContent className="space-y-4 pt-2">
-                <ControlSlider label="Width (px)" value={config.width} min={80} max={500} step={1} onChange={(val) => setConfig(c => ({...c, width: val}))} />
-                <ControlSlider label="Height (px)" value={config.height} min={80} max={500} step={1} onChange={(val) => setConfig(c => ({...c, height: val}))} />
-                <ControlSlider label="Radius (px)" value={config.radius} min={0} max={250} step={1} onChange={(val) => setConfig(c => ({...c, radius: val}))} />
-                <ControlSlider label="Frost" value={config.frost} min={0} max={1} step={0.01} onChange={(val) => setConfig(c => ({...c, frost: val}))} />
-                <ControlSlider label="Border" value={config.border} min={0} max={1} step={0.01} onChange={(val) => setConfig(c => ({...c, border: val}))} />
-                <ControlSlider label="Alpha" value={config.alpha} min={0} max={1} step={0.01} onChange={(val) => setConfig(c => ({...c, alpha: val}))} />
-                <ControlSlider label="Lightness" value={config.lightness} min={0} max={100} step={1} onChange={(val) => setConfig(c => ({...c, lightness: val}))} />
-                <ControlSlider label="Input Blur" value={config.blur} min={0} max={20} step={1} onChange={(val) => setConfig(c => ({...c, blur: val}))} />
-                <ControlSlider label="Output Blur" value={config.displace} min={0} max={5} step={0.1} onChange={(val) => setConfig(c => ({...c, displace: val}))} />
-                <ControlSlider label="Scale" value={config.scale} min={-1000} max={1000} step={1} onChange={(val) => setConfig(c => ({...c, scale: val}))} />
-                <Accordion type="single" collapsible className="w-full pl-2 border-l">
-                    <AccordionItem value="chromatic">
-                        <AccordionTrigger>Chromatic Aberration</AccordionTrigger>
-                        <AccordionContent className="space-y-4 pt-2">
-                             <ControlSlider label="Red" value={config.r} min={-100} max={100} step={1} onChange={(val) => setConfig(c => ({...c, r: val}))} />
-                             <ControlSlider label="Green" value={config.g} min={-100} max={100} step={1} onChange={(val) => setConfig(c => ({...c, g: val}))} />
-                             <ControlSlider label="Blue" value={config.b} min={-100} max={100} step={1} onChange={(val) => setConfig(c => ({...c, b: val}))} />
-                        </AccordionContent>
-                    </AccordionItem>
-                </Accordion>
+              <ControlSlider label="Width (px)" value={config.width} min={80} max={500} step={1} onChange={setConfigValue("width")}/>
+              <ControlSlider label="Height (px)" value={config.height} min={80} max={500} step={1} onChange={setConfigValue("height")} />
+              <ControlSlider label="Radius (px)" value={config.radius} min={0} max={250} step={1} onChange={setConfigValue("radius")} />
+              <ControlSlider label="Frost" value={config.frost} min={0} max={1} step={0.01} onChange={setConfigValue("frost")} />
+              <ControlSlider label="Border" value={config.border} min={0} max={1} step={0.01} onChange={setConfigValue("border")} />
+              <ControlSlider label="Alpha" value={config.alpha} min={0} max={1} step={0.01} onChange={setConfigValue("alpha")} />
+              <ControlSlider label="Lightness" value={config.lightness} min={0} max={100} step={1} onChange={setConfigValue("lightness")} />
+              <ControlSlider label="Input Blur" value={config.blur} min={0} max={20} step={1} onChange={setConfigValue("blur")} />
+              <ControlSlider label="Output Blur" value={config.displace} min={0} max={5} step={0.1} onChange={setConfigValue("displace")} />
+              <ControlSlider label="Scale" value={config.scale} min={-1000} max={1000} step={1} onChange={setConfigValue("scale")} />
+              
+              <div className="space-y-2 !mt-6">
+                <Label>Displacement Channels</Label>
+                <div className="grid grid-cols-2 gap-4">
+                   <Select value={config.x} onValueChange={setConfigValue("x")}>
+                    <SelectTrigger><SelectValue placeholder="X Channel" /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="R">Red</SelectItem>
+                      <SelectItem value="G">Green</SelectItem>
+                      <SelectItem value="B">Blue</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <Select value={config.y} onValueChange={setConfigValue("y")}>
+                    <SelectTrigger><SelectValue placeholder="Y Channel" /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="R">Red</SelectItem>
+                      <SelectItem value="G">Green</SelectItem>
+                      <SelectItem value="B">Blue</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+
+              <Accordion type="single" collapsible className="w-full pl-2 border-l mt-6 !mb-2">
+                <AccordionItem value="chromatic">
+                  <AccordionTrigger>Chromatic Aberration</AccordionTrigger>
+                  <AccordionContent className="space-y-4 pt-2">
+                    <ControlSlider label="Red Offset" value={config.r} min={-100} max={100} step={1} onChange={setConfigValue("r")} />
+                    <ControlSlider label="Green Offset" value={config.g} min={-100} max={100} step={1} onChange={setConfigValue("g")} />
+                    <ControlSlider label="Blue Offset" value={config.b} min={-100} max={100} step={1} onChange={setConfigValue("b")} />
+                  </AccordionContent>
+                </AccordionItem>
+              </Accordion>
             </AccordionContent>
           </AccordionItem>
         </Accordion>

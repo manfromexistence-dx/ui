@@ -332,10 +332,12 @@
   * {
     @apply border-border outline-ring/50;
   }
+
   body {
     @apply bg-background text-foreground;
     content-visibility: auto;
   }
+
   button:not(:disabled),
   [role="button"]:not(:disabled) {
     cursor: pointer;
@@ -345,7 +347,8 @@
 :root {
   /* Tailwind CSS Candy cane */
   --pattern-fg: color-mix(in oklab, var(--color-foreground) 10%, transparent);
-  & > * {
+
+  &>* {
     @apply scrollbar-thin;
   }
 }
@@ -402,31 +405,23 @@
 
   background-size: var(--bg-size) var(--bg-size);
   background-image:
-    linear-gradient(
-      to right,
+    linear-gradient(to right,
       color-mix(in oklch, var(--color-foreground) 4%, transparent) 1px,
-      transparent 1px
-    ),
-    linear-gradient(
-      color-mix(in oklch, var(--color-foreground) 4%, transparent) 1px,
-      transparent 1px
-    );
+      transparent 1px),
+    linear-gradient(color-mix(in oklch, var(--color-foreground) 4%, transparent) 1px,
+      transparent 1px);
 
-  mask-image: radial-gradient(
-    ellipse 100% 100% at 50% 0%,
-    #000 30%,
-    transparent 100%
-  );
+  mask-image: radial-gradient(ellipse 100% 100% at 50% 0%,
+      #000 30%,
+      transparent 100%);
 }
 
 .light-background-effect {
   --bg-height: 100vh;
-  --gradient-background: radial-gradient(
-    ellipse 60% 70% at 50% 0%,
-    oklch(from var(--primary) l c h / 0.15),
-    oklch(from var(--secondary) l c h / 0.1),
-    transparent 100%
-  );
+  --gradient-background: radial-gradient(ellipse 60% 70% at 50% 0%,
+      oklch(from var(--primary) l c h / 0.15),
+      oklch(from var(--secondary) l c h / 0.1),
+      transparent 100%);
 
   position: fixed;
   pointer-events: none;
@@ -453,15 +448,13 @@
   inset: 0;
   z-index: -1;
 
-  background-image: conic-gradient(
-    oklch(70% 0.25 calc(var(--hue) + 0deg)) 0deg,
-    oklch(90% 0.25 calc(var(--hue) + 60deg)) 60deg,
-    oklch(70% 0.25 calc(var(--hue) + 120deg)) 120deg,
-    oklch(70% 0.25 calc(var(--hue) + 180deg)) 180deg,
-    oklch(60% 0.25 calc(var(--hue) + 240deg)) 240deg,
-    oklch(70% 0.25 calc(var(--hue) + 300deg)) 300deg,
-    oklch(70% 0.25 calc(var(--hue) + 0deg)) 360deg
-  );
+  background-image: conic-gradient(oklch(70% 0.25 calc(var(--hue) + 0deg)) 0deg,
+      oklch(90% 0.25 calc(var(--hue) + 60deg)) 60deg,
+      oklch(70% 0.25 calc(var(--hue) + 120deg)) 120deg,
+      oklch(70% 0.25 calc(var(--hue) + 180deg)) 180deg,
+      oklch(60% 0.25 calc(var(--hue) + 240deg)) 240deg,
+      oklch(70% 0.25 calc(var(--hue) + 300deg)) 300deg,
+      oklch(70% 0.25 calc(var(--hue) + 0deg)) 360deg);
 
   animation-name: spin_gradient;
   animation-duration: 3s;
@@ -473,6 +466,7 @@
   from {
     --hue: 0deg;
   }
+
   to {
     --hue: 360deg;
   }
@@ -482,9 +476,11 @@
   * {
     @apply border-border;
   }
+
   html {
     @apply scroll-smooth;
   }
+
   body {
     @apply bg-background text-foreground overscroll-none;
     /* font-feature-settings: "rlig" 1, "calt" 1; */
@@ -502,13 +498,16 @@
   ::-webkit-scrollbar {
     width: 5px;
   }
+
   ::-webkit-scrollbar-track {
     background: transparent;
   }
+
   ::-webkit-scrollbar-thumb {
     background: hsl(var(--border));
     border-radius: 5px;
   }
+
   * {
     scrollbar-width: thin;
     scrollbar-color: hsl(var(--border)) transparent;
@@ -571,3 +570,9 @@
 
 
 
+.displacement-image {
+  height: 100%;
+  width: 100%;
+  pointer-events: none;
+  border-radius: calc(var(--radius) * 1px);
+}
