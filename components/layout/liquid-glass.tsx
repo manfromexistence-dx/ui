@@ -227,7 +227,7 @@ export const LiquidGlass = () => {
           animate={{ y: 0, opacity: 1 }}
           transition={{ delay: 0.2 }}
         >
-          <h1 className="text-5xl font-bold mb-4 bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+          <h1 className="text-5xl font-bold mb-4">
             Liquid Glass Interface
           </h1>
           <Badge variant="secondary" className="backdrop-blur-sm bg-secondary/50">
