@@ -52,7 +52,9 @@ type Config = {
     | "hue"
     | "saturation"
     | "color"
-    | "luminosity";
+    | "luminosity"
+    | "plus-darker"
+    | "plus-lighter";
   x: "R" | "G" | "B";
   y: "R" | "G" | "B";
   alpha: number;
@@ -72,7 +74,7 @@ const base = {
   radius: 16,
   border: 0.07,
   lightness: 50,
-  displace: 0.2,
+  displace: 0,
   blend: "difference" as Config["blend"],
   x: "R" as Config["x"],
   y: "B" as Config["y"],
@@ -81,7 +83,7 @@ const base = {
   r: 0,
   g: 10,
   b: 20,
-  frost: 0.05,
+  frost: 0,
   top: false,
 };
 
@@ -90,14 +92,14 @@ const presets: Record<Config["preset"], Partial<Config>> = {
     ...base,
     width: 336,
     height: 96,
+    displace: 0.2,
     icons: true,
+    frost: 0.05,
   },
   pill: {
     ...base,
     width: 200,
     height: 80,
-    displace: 0,
-    frost: 0,
     radius: 40,
   },
   bubble: {
@@ -105,8 +107,6 @@ const presets: Record<Config["preset"], Partial<Config>> = {
     radius: 70,
     width: 140,
     height: 140,
-    displace: 0,
-    frost: 0,
   },
   free: {
     ...base,
@@ -117,9 +117,7 @@ const presets: Record<Config["preset"], Partial<Config>> = {
     alpha: 0.74,
     lightness: 60,
     blur: 10,
-    displace: 0,
     scale: -300,
-    frost: 0,
   },
 };
 
@@ -145,20 +143,20 @@ export function LiquidGlass() {
     const borderPx = Math.min(width, height) * (border * 0.5);
 
     const svgString = `
-      <svg className="displacement-image" viewBox="0 0 ${width} ${height}" xmlns="http://www.w3.org/2000/svg">
+      <svg viewBox="0 0 ${width} ${height}" xmlns="http://www.w3.org/2000/svg">
         <defs>
-          <linearGradient id="red-grad" x1="100%" y1="0%" x2="0%" y2="0%">
+          <linearGradient id="red" x1="100%" y1="0%" x2="0%" y2="0%">
             <stop offset="0%" stop-color="#0000"/>
             <stop offset="100%" stop-color="red"/>
           </linearGradient>
-          <linearGradient id="blue-grad" x1="0%" y1="0%" x2="0%" y2="100%">
+          <linearGradient id="blue" x1="0%" y1="0%" x2="0%" y2="100%">
             <stop offset="0%" stop-color="#0000"/>
             <stop offset="100%" stop-color="blue"/>
           </linearGradient>
         </defs>
         <rect x="0" y="0" width="${width}" height="${height}" fill="black"/>
-        <rect x="0" y="0" width="${width}" height="${height}" rx="${radius}" fill="url(#red-grad)" />
-        <rect x="0" y="0" width="${width}" height="${height}" rx="${radius}" fill="url(#blue-grad)" style="mix-blend-mode: ${blend}" />
+        <rect x="0" y="0" width="${width}" height="${height}" rx="${radius}" fill="url(#red)" />
+        <rect x="0" y="0" width="${width}" height="${height}" rx="${radius}" fill="url(#blue)" style="mix-blend-mode: ${blend}" />
         <rect x="${borderPx}" y="${borderPx}" width="${width - borderPx * 2}" height="${height - borderPx * 2}" rx="${radius}" fill="hsl(0 0% ${lightness}% / ${alpha})" style="filter:blur(${blur}px)" />
       </svg>`;
 
@@ -174,7 +172,7 @@ export function LiquidGlass() {
     config.blur,
     config.blend,
   ]);
-
+  
   // Update global theme attribute when it changes
   useEffect(() => {
     document.documentElement.setAttribute("data-theme", config.theme);
@@ -197,6 +195,15 @@ export function LiquidGlass() {
     return null; // or a loading skeleton
   }
 
+  // Matrix for feColorMatrix to introduce chromatic aberration by manipulating the displacement map itself
+  const matrix = useMemo(() => {
+    const s = (val: number) => (val / 1000).toString();
+    const r = s(config.r);
+    const g = s(config.g);
+    const b = s(config.b);
+    return `${1+r} 0 0 0 0  0 ${1+g} 0 0 0  0 0 ${1+b} 0 0  0 0 0 1 0`;
+  }, [config.r, config.g, config.b]);
+
   return (
     <div className="grid grid-cols-1 gap-8 lg:grid-cols-[380px_1fr]">
       <Configurator
@@ -214,69 +221,25 @@ export function LiquidGlass() {
           Drag the element
         </div>
 
-        {/* SVG filter definitions */}
         <svg className="absolute h-0 w-0">
           <defs>
             <filter id="glass-filter">
-              {/* Common inputs */}
+              <feGaussianBlur in="SourceGraphic" stdDeviation={config.displace} />
               <feImage
                 href={displacementImageUri}
-                result="map"
+                result="displacementMap"
                 width={config.width}
                 height={config.height}
               />
-              <feGaussianBlur
+              {/* This matrix manipulates the displacement map itself to create aberration */}
+              <feColorMatrix in="displacementMap" type="matrix" values={matrix} result="aberratedMap" />
+              <feDisplacementMap
                 in="SourceGraphic"
-                stdDeviation={config.displace}
-                result="source"
-              />
-
-              {/* Isolate R, G, B from the blurred source */}
-              <feComponentTransfer in="source" result="R-source">
-                <feFuncG type="constant" slope="0" intercept="0" />
-                <feFuncB type="constant" slope="0" intercept="0" />
-              </feComponentTransfer>
-              <feComponentTransfer in="source" result="G-source">
-                <feFuncR type="constant" slope="0" intercept="0" />
-                <feFuncB type="constant" slope="0" intercept="0" />
-              </feComponentTransfer>
-              <feComponentTransfer in="source" result="B-source">
-                <feFuncR type="constant" slope="0" intercept="0" />
-                <feFuncG type="constant" slope="0" intercept="0" />
-              </feComponentTransfer>
-
-              {/* Displace each source channel using the map and its specific scale */}
-              <feDisplacementMap
-                in="R-source"
-                in2="map"
-                scale={config.scale + config.r}
+                in2="aberratedMap"
+                scale={config.scale}
                 xChannelSelector={config.x}
                 yChannelSelector={config.y}
-                result="displacedR"
               />
-              <feDisplacementMap
-                in="G-source"
-                in2="map"
-                scale={config.scale + config.g}
-                xChannelSelector={config.x}
-                yChannelSelector={config.y}
-                result="displacedG"
-              />
-              <feDisplacementMap
-                in="B-source"
-                in2="map"
-                scale={config.scale + config.b}
-                xChannelSelector={config.x}
-                yChannelSelector={config.y}
-                result="displacedB"
-              />
-
-              {/* Re-composite the displaced channels */}
-              <feMerge>
-                <feMergeNode in="displacedR" />
-                <feMergeNode in="displacedG" />
-                <feMergeNode in="displacedB" />
-              </feMerge>
             </filter>
           </defs>
         </svg>
@@ -288,10 +251,8 @@ export function LiquidGlass() {
           className="relative z-10 cursor-grab active:cursor-grabbing"
           style={{
             willChange,
-            // Effects
             backdropFilter: `blur(${config.frost * 25}px)`,
             filter: 'url(#glass-filter)',
-            // Base appearance
             backgroundColor: 'rgba(255, 255, 255, 0.05)',
             boxShadow: '0 4px 30px rgba(0, 0, 0, 0.1)',
           }}
@@ -315,9 +276,6 @@ export function LiquidGlass() {
   );
 }
 
-/**
- * A separate component for all the UI controls.
- */
 function Configurator({
   config,
   setConfig,
@@ -343,9 +301,7 @@ function Configurator({
         <div className="space-y-2">
           <Label>Preset</Label>
           <Select value={config.preset} onValueChange={onPresetChange}>
-            <SelectTrigger>
-              <SelectValue placeholder="Select a preset" />
-            </SelectTrigger>
+            <SelectTrigger><SelectValue/></SelectTrigger>
             <SelectContent>
               <SelectItem value="dock">Dock</SelectItem>
               <SelectItem value="pill">Pill</SelectItem>
@@ -356,14 +312,9 @@ function Configurator({
         </div>
 
         <div className="flex items-center justify-between">
-          <Label htmlFor="theme-selector">Theme</Label>
-          <Select
-            value={config.theme}
-            onValueChange={setConfigValue("theme")}
-          >
-            <SelectTrigger className="w-[120px]">
-              <SelectValue />
-            </SelectTrigger>
+          <Label>Theme</Label>
+          <Select value={config.theme} onValueChange={setConfigValue("theme")}>
+            <SelectTrigger className="w-[120px]"><SelectValue /></SelectTrigger>
             <SelectContent>
               <SelectItem value="system">System</SelectItem>
               <SelectItem value="light">Light</SelectItem>
@@ -372,18 +323,10 @@ function Configurator({
           </Select>
         </div>
 
-        <Accordion
-          type="single"
-          collapsible
-          className="w-full"
-          disabled={!isFreeMode}
-          defaultValue="item-1"
-        >
+        <Accordion type="single" collapsible className="w-full" disabled={!isFreeMode} defaultValue="item-1">
           <AccordionItem value="item-1">
             <AccordionTrigger>
-              <span className={!isFreeMode ? "text-muted-foreground" : ""}>
-                Settings
-              </span>
+              <span className={!isFreeMode ? "text-muted-foreground" : ""}>Settings</span>
             </AccordionTrigger>
             <AccordionContent className="space-y-4 pt-2">
               <ControlSlider label="Width (px)" value={config.width} min={80} max={500} step={1} onChange={setConfigValue("width")}/>
@@ -394,14 +337,24 @@ function Configurator({
               <ControlSlider label="Alpha" value={config.alpha} min={0} max={1} step={0.01} onChange={setConfigValue("alpha")} />
               <ControlSlider label="Lightness" value={config.lightness} min={0} max={100} step={1} onChange={setConfigValue("lightness")} />
               <ControlSlider label="Input Blur" value={config.blur} min={0} max={20} step={1} onChange={setConfigValue("blur")} />
-              <ControlSlider label="Output Blur" value={config.displace} min={0} max={5} step={0.1} onChange={setConfigValue("displace")} />
+              <ControlSlider label="Output Blur" value={config.displace} min={0} max={20} step={0.1} onChange={setConfigValue("displace")} />
               <ControlSlider label="Scale" value={config.scale} min={-1000} max={1000} step={1} onChange={setConfigValue("scale")} />
               
+              <div className="space-y-2 !mt-6">
+                <Label>Blend Mode</Label>
+                <Select value={config.blend} onValueChange={setConfigValue("blend")}>
+                    <SelectTrigger><SelectValue/></SelectTrigger>
+                    <SelectContent>
+                        {["normal", "multiply", "screen", "overlay", "darken", "lighten", "color-dodge", "color-burn", "hard-light", "soft-light", "difference", "exclusion", "hue", "saturation", "color", "luminosity", "plus-darker", "plus-lighter"].map(m => <SelectItem key={m} value={m}>{m}</SelectItem>)}
+                    </SelectContent>
+                </Select>
+              </div>
+
               <div className="space-y-2 !mt-6">
                 <Label>Displacement Channels</Label>
                 <div className="grid grid-cols-2 gap-4">
                    <Select value={config.x} onValueChange={setConfigValue("x")}>
-                    <SelectTrigger><SelectValue placeholder="X Channel" /></SelectTrigger>
+                    <SelectTrigger><SelectValue/></SelectTrigger>
                     <SelectContent>
                       <SelectItem value="R">Red</SelectItem>
                       <SelectItem value="G">Green</SelectItem>
@@ -409,7 +362,7 @@ function Configurator({
                     </SelectContent>
                   </Select>
                   <Select value={config.y} onValueChange={setConfigValue("y")}>
-                    <SelectTrigger><SelectValue placeholder="Y Channel" /></SelectTrigger>
+                    <SelectTrigger><SelectValue/></SelectTrigger>
                     <SelectContent>
                       <SelectItem value="R">Red</SelectItem>
                       <SelectItem value="G">Green</SelectItem>
@@ -437,21 +390,10 @@ function Configurator({
   );
 }
 
-// Helper component for sliders to reduce repetition
 function ControlSlider({
-  label,
-  value,
-  onChange,
-  min,
-  max,
-  step,
+  label, value, onChange, min, max, step,
 }: {
-  label: string;
-  value: number;
-  onChange: (value: number) => void;
-  min: number;
-  max: number;
-  step: number;
+  label: string; value: number; onChange: (value: number) => void; min: number; max: number; step: number;
 }) {
   return (
     <div className="space-y-2">
@@ -459,13 +401,7 @@ function ControlSlider({
         <Label>{label}</Label>
         <span className="text-sm text-muted-foreground">{value}</span>
       </div>
-      <Slider
-        value={[value]}
-        onValueChange={([val]) => onChange(val)}
-        min={min}
-        max={max}
-        step={step}
-      />
+      <Slider value={[value]} onValueChange={([val]) => onChange(val)} min={min} max={max} step={step} />
     </div>
   );
 }
