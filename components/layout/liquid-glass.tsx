@@ -1,149 +1,147 @@
-// app/components/LiquidGlass.tsx
-
 "use client";
 
-import * as React from "react";
-import { useState, useEffect, useMemo } from "react";
-import { motion, useWillChange } from "framer-motion";
-
-// Import shadcn-ui components
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { motion, useMotionValue, useTransform, AnimatePresence } from "framer-motion";
+import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useRef, useState, useEffect } from "react";
 
-// Define the type for our configuration state
-type Config = {
-  preset: "dock" | "pill" | "bubble" | "free";
-  theme: "system" | "light" | "dark";
-  top: boolean;
-  icons: boolean;
-  scale: number;
-  radius: number;
-  border: number;
-  lightness: number;
-  displace: number;
-  blend:
-    | "normal"
-    | "multiply"
-    | "screen"
-    | "overlay"
-    | "darken"
-    | "lighten"
-    | "color-dodge"
-    | "color-burn"
-    | "hard-light"
-    | "soft-light"
-    | "difference"
-    | "exclusion"
-    | "hue"
-    | "saturation"
-    | "color"
-    | "luminosity"
-    | "plus-darker"
-    | "plus-lighter";
-  x: "R" | "G" | "B";
-  y: "R" | "G" | "B";
-  alpha: number;
-  blur: number;
-  r: number;
-  g: number;
-  b: number;
-  width: number;
-  height: number;
-  frost: number;
-};
-
-// Base and preset configurations
-const base = {
-  icons: false,
-  scale: -180,
-  radius: 16,
-  border: 0.07,
-  lightness: 50,
-  displace: 0,
-  blend: "difference" as Config["blend"],
-  x: "R" as Config["x"],
-  y: "B" as Config["y"],
-  alpha: 0.93,
-  blur: 11,
-  r: 0,
-  g: 10,
-  b: 20,
-  frost: 0,
-  top: false,
-};
-
-const presets: Record<Config["preset"], Partial<Config>> = {
+// Preset configurations
+const presets = {
   dock: {
-    ...base,
     width: 336,
     height: 96,
+    radius: 16,
+    border: 0.07,
+    lightness: 50,
+    alpha: 0.93,
+    blur: 11,
     displace: 0.2,
+    scale: -180,
+    blend: "difference",
+    x: "R",
+    y: "B",
+    r: 0,
+    g: 10,
+    b: 20,
     icons: true,
-    frost: 0.05,
+    frost: 0.05
   },
   pill: {
-    ...base,
     width: 200,
     height: 80,
     radius: 40,
+    border: 0.07,
+    lightness: 50,
+    alpha: 0.93,
+    blur: 11,
+    displace: 0,
+    scale: -180,
+    blend: "difference",
+    x: "R",
+    y: "B",
+    r: 0,
+    g: 10,
+    b: 20,
+    icons: false,
+    frost: 0
   },
   bubble: {
-    ...base,
     radius: 70,
     width: 140,
     height: 140,
+    border: 0.07,
+    lightness: 50,
+    alpha: 0.93,
+    blur: 11,
+    displace: 0,
+    scale: -180,
+    blend: "difference",
+    x: "R",
+    y: "B",
+    r: 0,
+    g: 10,
+    b: 20,
+    icons: false,
+    frost: 0
   },
   free: {
-    ...base,
     width: 140,
     height: 280,
     radius: 80,
     border: 0.15,
-    alpha: 0.74,
     lightness: 60,
+    alpha: 0.74,
     blur: 10,
+    displace: 0,
     scale: -300,
-  },
+    blend: "difference",
+    x: "R",
+    y: "B",
+    r: 0,
+    g: 10,
+    b: 20,
+    icons: false,
+    frost: 0
+  }
 };
 
-const initialConfig: Config = {
-  ...presets.dock,
-  preset: "dock",
-  theme: "system",
-} as Config;
+// Configuration type
+interface LiquidGlassConfig {
+  width: number;
+  height: number;
+  radius: number;
+  border: number;
+  lightness: number;
+  alpha: number;
+  blur: number;
+  displace: number;
+  scale: number;
+  blend: string;
+  x: string;
+  y: string;
+  r: number;
+  g: number;
+  b: number;
+  icons: boolean;
+  frost: number;
+  theme: string;
+  debug: boolean;
+  preset: string;
+}
 
-/**
- * Main component that renders the draggable element and its controls.
- */
-export function LiquidGlass() {
-  const [config, setConfig] = useState<Config>(initialConfig);
-  const [isMounted, setIsMounted] = useState(false);
-  const containerRef = React.useRef<HTMLDivElement>(null);
-  const willChange = useWillChange();
-
-  // Generate the SVG for the displacement map filter as a data URI
-  const displacementImageUri = useMemo(() => {
-    const { width, height, radius, border, lightness, alpha, blur, blend } =
-      config;
-    const borderPx = Math.min(width, height) * (border * 0.5);
-
-    const svgString = `
-      <svg viewBox="0 0 ${width} ${height}" xmlns="http://www.w3.org/2000/svg">
+export const LiquidGlass = () => {
+  const constraintsRef = useRef<HTMLDivElement>(null);
+  const debugRef = useRef<HTMLDivElement>(null);
+  const glassRef = useRef<HTMLDivElement>(null);
+  
+  // Initial configuration
+  const [config, setConfig] = useState<LiquidGlassConfig>({
+    ...presets.dock,
+    theme: "system",
+    debug: false,
+    preset: "dock"
+  });
+  
+  // SVG data URI state
+  const [dataUri, setDataUri] = useState<string>("");
+  
+  // Position state for the glass element
+  const x = useMotionValue(0);
+  const y = useMotionValue(0);
+  
+  // Build displacement image
+  const buildDisplacementImage = () => {
+    if (!debugRef.current) return;
+    
+    const border = Math.min(config.width, config.height) * (config.border * 0.5);
+    const svgContent = `
+      <svg class="displacement-image" viewBox="0 0 ${config.width} ${config.height}" xmlns="http://www.w3.org/2000/svg">
         <defs>
           <linearGradient id="red" x1="100%" y1="0%" x2="0%" y2="0%">
             <stop offset="0%" stop-color="#0000"/>
@@ -154,254 +152,421 @@ export function LiquidGlass() {
             <stop offset="100%" stop-color="blue"/>
           </linearGradient>
         </defs>
-        <rect x="0" y="0" width="${width}" height="${height}" fill="black"/>
-        <rect x="0" y="0" width="${width}" height="${height}" rx="${radius}" fill="url(#red)" />
-        <rect x="0" y="0" width="${width}" height="${height}" rx="${radius}" fill="url(#blue)" style="mix-blend-mode: ${blend}" />
-        <rect x="${borderPx}" y="${borderPx}" width="${width - borderPx * 2}" height="${height - borderPx * 2}" rx="${radius}" fill="hsl(0 0% ${lightness}% / ${alpha})" style="filter:blur(${blur}px)" />
-      </svg>`;
-
-    const encoded = encodeURIComponent(svgString);
-    return `data:image/svg+xml,${encoded}`;
-  }, [
-    config.width,
-    config.height,
-    config.radius,
-    config.border,
-    config.lightness,
-    config.alpha,
-    config.blur,
-    config.blend,
-  ]);
-  
-  // Update global theme attribute when it changes
-  useEffect(() => {
-    document.documentElement.setAttribute("data-theme", config.theme);
-  }, [config.theme]);
-
-  // Set mounted state after initial render to avoid SSR issues
-  useEffect(() => {
-    setIsMounted(true);
-  }, []);
-
-  const handlePresetChange = (newPreset: Config["preset"]) => {
-    setConfig((prev) => ({
-      ...prev,
-      ...presets[newPreset],
-      preset: newPreset,
-    }));
+        <!-- backdrop -->
+        <rect x="0" y="0" width="${config.width}" height="${config.height}" fill="black"></rect>
+        <!-- red linear -->
+        <rect x="0" y="0" width="${config.width}" height="${config.height}" rx="${config.radius}" fill="url(#red)" />
+        <!-- blue linear -->
+        <rect x="0" y="0" width="${config.width}" height="${config.height}" rx="${config.radius}" fill="url(#blue)" style="mix-blend-mode: ${config.blend}" />
+        <!-- block out distortion -->
+        <rect x="${border}" y="${border}" width="${config.width - border * 2}" height="${config.height - border * 2}" rx="${config.radius}" fill="hsl(0 0% ${config.lightness}% / ${config.alpha}" style="filter:blur(${config.blur}px)" />
+      </svg>
+    `;
+    
+    // Create SVG element and serialize it
+    const tempDiv = document.createElement('div');
+    tempDiv.innerHTML = svgContent;
+    const svgEl = tempDiv.querySelector('svg');
+    
+    if (svgEl) {
+      const serialized = new XMLSerializer().serializeToString(svgEl);
+      const encoded = encodeURIComponent(serialized);
+      const uri = `data:image/svg+xml,${encoded}`;
+      setDataUri(uri);
+      
+      // Update debug display
+      debugRef.current.innerHTML = svgContent;
+    }
   };
-
-  if (!isMounted) {
-    return null; // or a loading skeleton
-  }
-
-  // Matrix for feColorMatrix to introduce chromatic aberration by manipulating the displacement map itself
-  const matrix = useMemo(() => {
-    const s = (val: number) => (val / 1000).toString();
-    const r = s(config.r);
-    const g = s(config.g);
-    const b = s(config.b);
-    return `${1+r} 0 0 0 0  0 ${1+g} 0 0 0  0 0 ${1+b} 0 0  0 0 0 1 0`;
-  }, [config.r, config.g, config.b]);
+  
+  // Update CSS variables and filter attributes
+  useEffect(() => {
+    buildDisplacementImage();
+    
+    // Update CSS variables
+    if (glassRef.current) {
+      glassRef.current.style.setProperty('--width', `${config.width}px`);
+      glassRef.current.style.setProperty('--height', `${config.height}px`);
+      glassRef.current.style.setProperty('--radius', `${config.radius}px`);
+      glassRef.current.style.setProperty('--frost', config.frost.toString());
+    }
+    
+    // Update filter attributes
+    const feDisplacementMap = document.querySelector('feDisplacementMap');
+    const redChannel = document.querySelector('#redchannel');
+    const greenChannel = document.querySelector('#greenchannel');
+    const blueChannel = document.querySelector('#bluechannel');
+    const feGaussianBlur = document.querySelector('feGaussianBlur');
+    const feImage = document.querySelector('feImage');
+    
+    if (feDisplacementMap) {
+      feDisplacementMap.setAttribute('scale', config.scale.toString());
+      feDisplacementMap.setAttribute('xChannelSelector', config.x);
+      feDisplacementMap.setAttribute('yChannelSelector', config.y);
+    }
+    
+    if (redChannel) {
+      redChannel.setAttribute('scale', (config.scale + config.r).toString());
+      redChannel.setAttribute('xChannelSelector', config.x);
+      redChannel.setAttribute('yChannelSelector', config.y);
+    }
+    
+    if (greenChannel) {
+      greenChannel.setAttribute('scale', (config.scale + config.g).toString());
+      greenChannel.setAttribute('xChannelSelector', config.x);
+      greenChannel.setAttribute('yChannelSelector', config.y);
+    }
+    
+    if (blueChannel) {
+      blueChannel.setAttribute('scale', (config.scale + config.b).toString());
+      blueChannel.setAttribute('xChannelSelector', config.x);
+      blueChannel.setAttribute('yChannelSelector', config.y);
+    }
+    
+    if (feGaussianBlur) {
+      feGaussianBlur.setAttribute('stdDeviation', config.displace.toString());
+    }
+    
+    if (feImage && dataUri) {
+      feImage.setAttribute('href', dataUri);
+    }
+    
+    // Set document theme
+    document.documentElement.dataset.theme = config.theme;
+  }, [config, dataUri]);
+  
+  // Handle preset change
+  const handlePresetChange = (value: string) => {
+    if (value in presets) {
+      setConfig(prev => ({
+        ...prev,
+        ...presets[value as keyof typeof presets],
+        preset: value
+      }));
+    }
+  };
+  
+  // Handle configuration change
+  const handleConfigChange = (key: keyof LiquidGlassConfig, value: any) => {
+    setConfig(prev => ({ ...prev, [key]: value }));
+  };
+  
+  // Position the glass element on initial load
+  useEffect(() => {
+    const placeholderEl = document.querySelector('.dock-placeholder');
+    if (placeholderEl && glassRef.current) {
+      const rect = placeholderEl.getBoundingClientRect();
+      x.set(rect.left);
+      y.set(rect.top);
+    }
+  }, [x, y]);
 
   return (
-    <div className="grid grid-cols-1 gap-8 lg:grid-cols-[380px_1fr]">
-      <Configurator
-        config={config}
-        setConfig={setConfig}
-        onPresetChange={handlePresetChange}
-      />
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 overflow-hidden">
+      {/* Background animated elements */}
+      <div className="absolute inset-0">
+        {[...Array(6)].map((_, i) => (
+          <motion.div
+            key={i}
+            className="absolute rounded-full bg-gradient-to-r from-blue-400/10 to-purple-400/10 blur-xl"
+            style={{
+              width: Math.random() * 400 + 200,
+              height: Math.random() * 400 + 200,
+              left: `${Math.random() * 100}%`,
+              top: `${Math.random() * 100}%`,
+            }}
+            animate={{
+              x: [0, Math.random() * 100 - 50],
+              y: [0, Math.random() * 100 - 50],
+              scale: [1, 1.1, 1],
+            }}
+            transition={{
+              duration: Math.random() * 10 + 10,
+              repeat: Infinity,
+              repeatType: "reverse",
+              ease: "easeInOut",
+            }}
+          />
+        ))}
+      </div>
 
-      <div
-        ref={containerRef}
-        className="relative flex h-[80vh] min-h-[500px] w-full items-center justify-center overflow-hidden rounded-lg border bg-slate-100 p-4 dark:bg-slate-900/80"
-      >
-        <div className="pointer-events-none absolute inset-0 z-0 h-full w-full bg-[linear-gradient(to_right,#8080800a_1px,transparent_1px),linear-gradient(to_bottom,#8080800a_1px,transparent_1px)] bg-[size:14px_24px]"></div>
-        <div className="absolute text-sm text-slate-500 dark:text-slate-400">
-          Drag the element
-        </div>
-
-        <svg className="absolute h-0 w-0">
-          <defs>
-            <filter id="glass-filter">
-              <feGaussianBlur in="SourceGraphic" stdDeviation={config.displace} />
-              <feImage
-                href={displacementImageUri}
-                result="displacementMap"
-                width={config.width}
-                height={config.height}
-              />
-              {/* This matrix manipulates the displacement map itself to create aberration */}
-              <feColorMatrix in="displacementMap" type="matrix" values={matrix} result="aberratedMap" />
-              <feDisplacementMap
-                in="SourceGraphic"
-                in2="aberratedMap"
-                scale={config.scale}
-                xChannelSelector={config.x}
-                yChannelSelector={config.y}
-              />
-            </filter>
-          </defs>
-        </svg>
-
+      {/* Main content */}
+      <div ref={constraintsRef} className="relative h-screen p-8">
+        {/* Header */}
         <motion.div
-          drag
-          dragConstraints={containerRef}
-          dragMomentum={false}
-          className="relative z-10 cursor-grab active:cursor-grabbing"
-          style={{
-            willChange,
-            backdropFilter: `blur(${config.frost * 25}px)`,
-            filter: 'url(#glass-filter)',
-            backgroundColor: 'rgba(255, 255, 255, 0.05)',
-            boxShadow: '0 4px 30px rgba(0, 0, 0, 0.1)',
-          }}
-          animate={{
-            width: config.width,
-            height: config.height,
-            borderRadius: config.radius,
-          }}
-          transition={{ type: "spring", stiffness: 200, damping: 30 }}
+          className="text-center mb-8"
+          initial={{ y: -50, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ delay: 0.2 }}
         >
-          {config.icons && (
-            <div className="flex h-full items-center justify-center gap-4 text-white">
-              <svg width="32" height="32" viewBox="0 0 24 24"><path fill="currentColor" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10s10-4.48 10-10S17.52 2 12 2"/></svg>
-              <svg width="32" height="32" viewBox="0 0 24 24"><path fill="currentColor" d="M2 12h20v2H2z"/></svg>
-              <svg width="32" height="32" viewBox="0 0 24 24"><path fill="currentColor" d="M12 2L2 22h20z"/></svg>
-            </div>
-           )}
+          <h1 className="text-5xl font-bold text-white mb-4 bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
+            Liquid Glass Interface
+          </h1>
+          <Badge variant="secondary" className="backdrop-blur-sm bg-white/10">
+            Drag the glass element • Try different presets
+          </Badge>
+        </motion.div>
+        
+        {/* Dock placeholder */}
+        <div className="placeholder relative mx-auto">
+          <div className="dock-placeholder w-[336px] h-[96px] rounded-[16px] absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"></div>
+        </div>
+        
+        {/* Glass element */}
+        <motion.div
+          ref={glassRef}
+          className="effect"
+          style={{
+            x,
+            y,
+            width: `${config.width}px`,
+            height: `${config.height}px`,
+            borderRadius: `${config.radius}px`,
+            background: `rgba(${config.theme === 'light' ? '255, 255, 255' : '0, 0, 0'}, ${config.frost})`,
+            opacity: 1,
+            position: 'absolute',
+            zIndex: 999999,
+            backdropFilter: 'url(#filter)'
+          }}
+          drag
+          dragMomentum={false}
+          dragConstraints={constraintsRef}
+          dragElastic={0.1}
+          whileDrag={{ scale: 1.02 }}
+        >
+          <div className="nav-wrap w-full h-full overflow-hidden" style={{ borderRadius: 'inherit' }}>
+            <nav className={`w-full h-full flex items-center justify-center p-2 ${config.icons ? 'opacity-100' : 'opacity-0'}`}
+                 style={{ transition: 'opacity 0.26s ease-out' }}>
+              <img src="https://assets.codepen.io/605876/finder.png" alt="App icon" className="w-[60px] aspect-square" />
+              <img src="https://assets.codepen.io/605876/launch-control.png" alt="App icon" className="w-[60px] aspect-square" />
+              <img src="https://assets.codepen.io/605876/safari.png" alt="App icon" className="w-[60px] aspect-square" />
+              <img src="https://assets.codepen.io/605876/calendar.png" alt="App icon" className="w-[60px] aspect-square" />
+            </nav>
+          </div>
+          
+          {/* SVG Filter */}
+          <svg className="filter absolute inset-0 w-full h-full pointer-events-none" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <filter id="filter" colorInterpolationFilters="sRGB">
+                <feImage x="0" y="0" width="100%" height="100%" result="map"></feImage>
+                <feDisplacementMap in="SourceGraphic" in2="map" id="redchannel" xChannelSelector={config.x} yChannelSelector={config.y} scale={config.scale + config.r} result="dispRed" />
+                <feColorMatrix in="dispRed" type="matrix" values="1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0" result="red" />
+                <feDisplacementMap in="SourceGraphic" in2="map" id="greenchannel" xChannelSelector={config.x} yChannelSelector={config.y} scale={config.scale + config.g} result="dispGreen" />
+                <feColorMatrix in="dispGreen" type="matrix" values="0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 1 0" result="green" />
+                <feDisplacementMap in="SourceGraphic" in2="map" id="bluechannel" xChannelSelector={config.x} yChannelSelector={config.y} scale={config.scale + config.b} result="dispBlue" />
+                <feColorMatrix in="dispBlue" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 1 0" result="blue" />
+                <feBlend in="red" in2="green" mode="screen" result="rg" />
+                <feBlend in="rg" in2="blue" mode="screen" result="output" />
+                <feGaussianBlur in="output" stdDeviation={config.displace} />
+              </filter>
+            </defs>
+          </svg>
+          
+          {/* Debug View */}
+          <div 
+            ref={debugRef} 
+            className="displacement-debug pointer-events-none absolute inset-0 w-full h-full"
+            style={{ 
+              opacity: config.debug ? 1 : 0,
+              transform: config.debug ? 'translateY(calc(100% + 1rem))' : 'translateY(calc(200% + 1rem)) scale(0.8)',
+              transition: 'transform 0.26s ease-out, opacity 0.26s ease-out'
+            }}
+          ></div>
+        </motion.div>
+        
+        {/* Configuration Panel */}
+        <motion.div
+          className="config-panel fixed bottom-8 right-8 w-[300px] z-[999999]"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.5 }}
+        >
+          <Card className="backdrop-blur-xl bg-black/20 border border-white/20 text-white">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-xl flex justify-between items-center">
+                Configuration
+                <Badge variant="outline" className="ml-2">Liquid Glass</Badge>
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <Tabs defaultValue="presets" className="w-full">
+                <TabsList className="grid grid-cols-2 mb-4">
+                  <TabsTrigger value="presets">Presets</TabsTrigger>
+                  <TabsTrigger value="advanced" disabled={config.preset !== 'free'}>Advanced</TabsTrigger>
+                </TabsList>
+                
+                <TabsContent value="presets" className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="preset">Mode</Label>
+                    <Select value={config.preset} onValueChange={handlePresetChange}>
+                      <SelectTrigger id="preset">
+                        <SelectValue placeholder="Select preset" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="dock">Dock</SelectItem>
+                        <SelectItem value="pill">Pill</SelectItem>
+                        <SelectItem value="bubble">Bubble</SelectItem>
+                        <SelectItem value="free">Free</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="theme">Theme</Label>
+                    <Select value={config.theme} onValueChange={(value) => handleConfigChange('theme', value)}>
+                      <SelectTrigger id="theme">
+                        <SelectValue placeholder="Select theme" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="system">System</SelectItem>
+                        <SelectItem value="light">Light</SelectItem>
+                        <SelectItem value="dark">Dark</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  
+                  <div className="flex items-center space-x-2">
+                    <Switch 
+                      id="debug" 
+                      checked={config.debug} 
+                      onCheckedChange={(checked) => handleConfigChange('debug', checked)} 
+                    />
+                    <Label htmlFor="debug">Debug View</Label>
+                  </div>
+                  
+                  <div className="flex items-center space-x-2">
+                    <Switch 
+                      id="icons" 
+                      checked={config.icons} 
+                      onCheckedChange={(checked) => handleConfigChange('icons', checked)} 
+                    />
+                    <Label htmlFor="icons">Show Icons</Label>
+                  </div>
+                </TabsContent>
+                
+                <TabsContent value="advanced" className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="width">Width: {config.width}px</Label>
+                    <Slider
+                      id="width"
+                      min={80}
+                      max={500}
+                      step={1}
+                      value={[config.width]}
+                      onValueChange={([value]) => handleConfigChange('width', value)}
+                    />
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="height">Height: {config.height}px</Label>
+                    <Slider
+                      id="height"
+                      min={80}
+                      max={500}
+                      step={1}
+                      value={[config.height]}
+                      onValueChange={([value]) => handleConfigChange('height', value)}
+                    />
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="radius">Radius: {config.radius}px</Label>
+                    <Slider
+                      id="radius"
+                      min={0}
+                      max={100}
+                      step={1}
+                      value={[config.radius]}
+                      onValueChange={([value]) => handleConfigChange('radius', value)}
+                    />
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="displace">Blur: {config.displace}</Label>
+                    <Slider
+                      id="displace"
+                      min={0}
+                      max={5}
+                      step={0.1}
+                      value={[config.displace]}
+                      onValueChange={([value]) => handleConfigChange('displace', value)}
+                    />
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="scale">Scale: {config.scale}</Label>
+                    <Slider
+                      id="scale"
+                      min={-500}
+                      max={500}
+                      step={10}
+                      value={[config.scale]}
+                      onValueChange={([value]) => handleConfigChange('scale', value)}
+                    />
+                  </div>
+                </TabsContent>
+              </Tabs>
+            </CardContent>
+            <CardFooter>
+              <Button 
+                variant="outline" 
+                className="w-full border-white/20 text-white hover:bg-white/20"
+                onClick={() => handlePresetChange('dock')}
+              >
+                Reset to Default
+              </Button>
+            </CardFooter>
+          </Card>
         </motion.div>
       </div>
+      
+      {/* Floating action button */}
+      <motion.div
+        className="fixed bottom-8 left-8"
+        initial={{ scale: 0 }}
+        animate={{ scale: 1 }}
+        transition={{ delay: 1.5, type: "spring" }}
+      >
+        <Button
+          size="lg"
+          className="rounded-full w-16 h-16 backdrop-blur-xl bg-gradient-to-r from-blue-500/20 to-purple-500/20 border border-white/20 hover:scale-110 transition-transform"
+        >
+          <motion.div
+            animate={{ rotate: 360 }}
+            transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
+          >
+            ✨
+          </motion.div>
+        </Button>
+      </motion.div>
+      
+      {/* Global CSS */}
+      <style jsx global>{`
+        .effect {
+          box-shadow: 0 0 2px 1px rgba(255, 255, 255, 0.15) inset,
+                      0 0 10px 4px rgba(255, 255, 255, 0.1) inset,
+                      0px 4px 16px rgba(17, 17, 26, 0.05),
+                      0px 8px 24px rgba(17, 17, 26, 0.05),
+                      0px 16px 56px rgba(17, 17, 26, 0.05),
+                      0px 4px 16px rgba(17, 17, 26, 0.05) inset,
+                      0px 8px 24px rgba(17, 17, 26, 0.05) inset,
+                      0px 16px 56px rgba(17, 17, 26, 0.05) inset;
+        }
+        
+        .placeholder {
+          width: 336px;
+          height: 96px;
+          max-width: 100%;
+          position: relative;
+          margin-bottom: 200px;
+        }
+        
+        .displacement-debug .label {
+          position: absolute;
+          left: 50%;
+          top: calc(100% + 0.2rem);
+        }
+      `}</style>
     </div>
   );
-}
-
-function Configurator({
-  config,
-  setConfig,
-  onPresetChange,
-}: {
-  config: Config;
-  setConfig: React.Dispatch<React.SetStateAction<Config>>;
-  onPresetChange: (preset: Config["preset"]) => void;
-}) {
-  const isFreeMode = config.preset === "free";
-  const setConfigValue =
-    <K extends keyof Config>(key: K) =>
-    (value: Config[K]) => {
-      setConfig((c) => ({ ...c, [key]: value }));
-    };
-
-  return (
-    <Card className="w-full max-w-sm">
-      <CardHeader>
-        <CardTitle>Configuration</CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-6">
-        <div className="space-y-2">
-          <Label>Preset</Label>
-          <Select value={config.preset} onValueChange={onPresetChange}>
-            <SelectTrigger><SelectValue/></SelectTrigger>
-            <SelectContent>
-              <SelectItem value="dock">Dock</SelectItem>
-              <SelectItem value="pill">Pill</SelectItem>
-              <SelectItem value="bubble">Bubble</SelectItem>
-              <SelectItem value="free">Free</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-
-        <div className="flex items-center justify-between">
-          <Label>Theme</Label>
-          <Select value={config.theme} onValueChange={setConfigValue("theme")}>
-            <SelectTrigger className="w-[120px]"><SelectValue /></SelectTrigger>
-            <SelectContent>
-              <SelectItem value="system">System</SelectItem>
-              <SelectItem value="light">Light</SelectItem>
-              <SelectItem value="dark">Dark</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-
-        <Accordion type="single" collapsible className="w-full" disabled={!isFreeMode} defaultValue="item-1">
-          <AccordionItem value="item-1">
-            <AccordionTrigger>
-              <span className={!isFreeMode ? "text-muted-foreground" : ""}>Settings</span>
-            </AccordionTrigger>
-            <AccordionContent className="space-y-4 pt-2">
-              <ControlSlider label="Width (px)" value={config.width} min={80} max={500} step={1} onChange={setConfigValue("width")}/>
-              <ControlSlider label="Height (px)" value={config.height} min={80} max={500} step={1} onChange={setConfigValue("height")} />
-              <ControlSlider label="Radius (px)" value={config.radius} min={0} max={250} step={1} onChange={setConfigValue("radius")} />
-              <ControlSlider label="Frost" value={config.frost} min={0} max={1} step={0.01} onChange={setConfigValue("frost")} />
-              <ControlSlider label="Border" value={config.border} min={0} max={1} step={0.01} onChange={setConfigValue("border")} />
-              <ControlSlider label="Alpha" value={config.alpha} min={0} max={1} step={0.01} onChange={setConfigValue("alpha")} />
-              <ControlSlider label="Lightness" value={config.lightness} min={0} max={100} step={1} onChange={setConfigValue("lightness")} />
-              <ControlSlider label="Input Blur" value={config.blur} min={0} max={20} step={1} onChange={setConfigValue("blur")} />
-              <ControlSlider label="Output Blur" value={config.displace} min={0} max={20} step={0.1} onChange={setConfigValue("displace")} />
-              <ControlSlider label="Scale" value={config.scale} min={-1000} max={1000} step={1} onChange={setConfigValue("scale")} />
-              
-              <div className="space-y-2 !mt-6">
-                <Label>Blend Mode</Label>
-                <Select value={config.blend} onValueChange={setConfigValue("blend")}>
-                    <SelectTrigger><SelectValue/></SelectTrigger>
-                    <SelectContent>
-                        {["normal", "multiply", "screen", "overlay", "darken", "lighten", "color-dodge", "color-burn", "hard-light", "soft-light", "difference", "exclusion", "hue", "saturation", "color", "luminosity", "plus-darker", "plus-lighter"].map(m => <SelectItem key={m} value={m}>{m}</SelectItem>)}
-                    </SelectContent>
-                </Select>
-              </div>
-
-              <div className="space-y-2 !mt-6">
-                <Label>Displacement Channels</Label>
-                <div className="grid grid-cols-2 gap-4">
-                   <Select value={config.x} onValueChange={setConfigValue("x")}>
-                    <SelectTrigger><SelectValue/></SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="R">Red</SelectItem>
-                      <SelectItem value="G">Green</SelectItem>
-                      <SelectItem value="B">Blue</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <Select value={config.y} onValueChange={setConfigValue("y")}>
-                    <SelectTrigger><SelectValue/></SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="R">Red</SelectItem>
-                      <SelectItem value="G">Green</SelectItem>
-                      <SelectItem value="B">Blue</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-
-              <Accordion type="single" collapsible className="w-full pl-2 border-l mt-6 !mb-2">
-                <AccordionItem value="chromatic">
-                  <AccordionTrigger>Chromatic Aberration</AccordionTrigger>
-                  <AccordionContent className="space-y-4 pt-2">
-                    <ControlSlider label="Red Offset" value={config.r} min={-100} max={100} step={1} onChange={setConfigValue("r")} />
-                    <ControlSlider label="Green Offset" value={config.g} min={-100} max={100} step={1} onChange={setConfigValue("g")} />
-                    <ControlSlider label="Blue Offset" value={config.b} min={-100} max={100} step={1} onChange={setConfigValue("b")} />
-                  </AccordionContent>
-                </AccordionItem>
-              </Accordion>
-            </AccordionContent>
-          </AccordionItem>
-        </Accordion>
-      </CardContent>
-    </Card>
-  );
-}
-
-function ControlSlider({
-  label, value, onChange, min, max, step,
-}: {
-  label: string; value: number; onChange: (value: number) => void; min: number; max: number; step: number;
-}) {
-  return (
-    <div className="space-y-2">
-      <div className="flex justify-between">
-        <Label>{label}</Label>
-        <span className="text-sm text-muted-foreground">{value}</span>
-      </div>
-      <Slider value={[value]} onValueChange={([val]) => onChange(val)} min={min} max={max} step={step} />
-    </div>
-  );
-}
+};
